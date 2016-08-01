@@ -115,7 +115,14 @@
             <input type="password" class="form-control" id="confirmpwd" placeholder="Confirm password">
           </div>
         </div>
-                
+         
+         <div class="form-group">
+          <label class="control-label col-sm-2" for="contact_num">Contact Number:</label>
+          <div class="col-sm-3">
+            <input type="text" class="form-control" id="contact_num" placeholder="9213321345">
+          </div>
+        </div>
+          
         <div class="form-group">
           <label class="control-label col-sm-2" >Gender:</label>
           <div class="col-sm-10">
@@ -141,41 +148,63 @@
         </div>
                 
         <div class="form-group">
-          <label class="control-label col-sm-2" for="res_addrstreet">Residence Address:</label>
+          <label class="control-label col-sm-2" for="res_addrstate">Residence Address:</label>  
+          
           <div class="col-sm-4">
-            <input type="text" class="form-control" id="res-addrstreet" placeholder="Enter Street">
+            <select class="form-control countries" id="res_addrcountry">
+                <option value="">Select Country</option>
+            </select>
+          </div> 
+          <div class="clearfix"></div>           
+          <div class="col-sm-offset-2 col-sm-4 needspacing">
+            <select class="form-control states" id="res_addrstate">
+                <option value="">Select State</option>
+            </select>
           </div>
           <div class="clearfix"></div>
-          <div class="col-sm-offset-2 col-sm-4">
-            <input type="text" class="form-control" id="res-addrcity" placeholder="Enter City">
+          <div class="col-sm-offset-2 col-sm-4 needspacing">
+            <select class="form-control cities" id="res_addrcity">
+                <option value="">Select City</option>
+            </select>
+          </div> 
+          <div class="clearfix"></div>  
+          <div class="col-sm-offset-2 col-sm-4 needspacing">
+            <input type="text" class="form-control" id="res_addrstreet" placeholder="Gandhi Street">
           </div>
           <div class="clearfix"></div>
-          <div class="col-sm-offset-2 col-sm-4">
-            <input type="text" class="form-control" id="res-addrstate" placeholder="Enter State">
-          </div>
-           <div class="clearfix"></div>
-          <div class="col-sm-offset-2 col-sm-4">
-            <input type="text" class="form-control" id="res-addrzip" placeholder="Enter Zipcode">
-          </div>
-        </div>  
+          <div class="col-sm-offset-2 col-sm-4 needspacing">
+            <input type="text" class="form-control" id="res_addrzip" placeholder="748123">
+          </div>           
+        </div>
           
         <div class="form-group">
-          <label class="control-label col-sm-2" for="res_addrstreet">Office Address:</label>
+          <label class="control-label col-sm-2" for="ofc_addrcountry">Office Address:</label>  
           <div class="col-sm-4">
-            <input type="text" class="form-control" id="res-addrstreet" placeholder="Enter Street">
+            <select class="form-control countries" id="ofc_addrcountry">
+                <option value="">Select Country</option>
+            </select>
+          </div> 
+          <div class="clearfix"></div>
+          <div class="col-sm-offset-2 col-sm-4 needspacing">
+            <select class="form-control states" id="ofc_addrstate">
+                <option value="">Select State</option>
+            </select>
           </div>
           <div class="clearfix"></div>
-          <div class="col-sm-offset-2 col-sm-4">
-            <input type="text" class="form-control" id="res-addrcity" placeholder="Enter City">
+          <div class="col-sm-offset-2 col-sm-4 needspacing">
+            <select class="form-control cities" id="ofc_addrcity">
+                <option value="">Select City</option>
+            </select>
+          </div> 
+          <div class="clearfix"></div>  
+          <div class="col-sm-offset-2 col-sm-4 needspacing">
+            <input type="text" class="form-control" id="ofc-addrstreet" placeholder="Street-76">
           </div>
           <div class="clearfix"></div>
-          <div class="col-sm-offset-2 col-sm-4">
-            <input type="text" class="form-control" id="res-addrstate" placeholder="Enter State">
+          <div class="col-sm-offset-2 col-sm-4 needspacing">
+            <input type="text" class="form-control" id="ofc-addrzip" placeholder="785103">
           </div>
-          <div class="clearfix"></div>
-          <div class="col-sm-offset-2 col-sm-4">
-            <input type="text" class="form-control" id="res-addrzip" placeholder="Enter Zipcode" pattern="[0-9]{6}">
-          </div>
+           
         </div>     
           
         <div class="form-group">
@@ -188,9 +217,9 @@
         <div class="form-group">
           <label class="control-label col-sm-2" >Preferred Communication Medium:</label>
           <div class="col-sm-10" style="padding-top: 2%">
-            <label class="checkbox-inline"><input type="checkbox" value="">email</label>
-            <label class="checkbox-inline"><input type="checkbox" value="">sms</label>
-            <label class="checkbox-inline"><input type="checkbox" value="">call</label>
+            <label class="checkbox-inline"><input type="checkbox" value="">Email</label>
+            <label class="checkbox-inline"><input type="checkbox" value="">SMS</label>
+            <label class="checkbox-inline"><input type="checkbox" value="">Call</label>
             <label class="checkbox-inline"><input type="checkbox" value="">ANY</label>            
           </div>
         </div>  
@@ -209,6 +238,11 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+ 
+    
+  
+
+<script src="http://iamrohit.in/lab/js/location.js"></script>
 
 </body>
 
