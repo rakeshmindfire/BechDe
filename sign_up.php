@@ -15,8 +15,6 @@
 
         <!-- Custom Fonts -->
         <link href='https://fonts.googleapis.com/css?family=Sansita+One' rel='stylesheet' type='text/css'>
-
-        <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
 
         <!-- Theme CSS -->
@@ -53,7 +51,7 @@
                         <a class="" href="about_us.html">About Us</a>
                     </li>
                     <li>
-                        <a class="" href="sign_up.html">Register</a>
+                        <a class="" href="sign_up.php">Register</a>
                     </li>
                 </ul>
             </div>
@@ -61,88 +59,122 @@
         </div>
         <!-- /.container-fluid -->
     </nav>
+    
+    <?php
+    
+    if($_POST)
+    {
+        echo '<section><pre>';
+        print_r($_POST);
+        echo '</pre></section>';
+    }
+    
+    ?>
 
     <section id="signupform">
     <div class="container">
       <h3>Please fill in to sign up ...</h3>
-      <form class="form-horizontal" role="form">
+      <form class="form-horizontal" role="form" method="post" action="sign_up.php">
         <div class="form-group">
           <label class="control-label col-sm-2" for="username">Username:</label>
           <div class="col-sm-2">
-            <input type="text" class="form-control" id="username" placeholder="bob378">
+             <input type="text" class="form-control" id="username" placeholder="bob234"
+                   name="username" value="<?php echo ($_POST["username"]) ? $_POST["username"]:''; ?>">
           </div>
         </div>
           
         <div class="form-group">
           <label class="control-label col-sm-2" for="firstname">First name:</label>
           <div class="col-sm-3">
-            <input type="text" class="form-control" id="firstname" placeholder="Bob">
+            <input type="text" class="form-control" id="firstname" placeholder="Bob"
+                   name="firstname" value="<?php echo ($_POST["firstname"]) ? $_POST["firstname"]:''; ?>">
           </div>
         </div>
         
          <div class="form-group">
           <label class="control-label col-sm-2" for="middlename">Middle name:</label>
           <div class="col-sm-3">
-            <input type="text" class="form-control" id="middlename" placeholder="James">
+            <input type="text" class="form-control" id="middlename" placeholder="James"
+                    name="middlename" value="<?php echo ($_POST["middlename"]) ? $_POST["middlename"]:''; ?>">
           </div>
         </div>
           
         <div class="form-group">
           <label class="control-label col-sm-2" for="lastname">Last name:</label>
           <div class="col-sm-3">
-            <input type="text" class="form-control" id="lastname" placeholder="Martin">
+            <input type="text" class="form-control" id="lastname" placeholder="Martin"
+                    name="lastname" value="<?php echo ($_POST["lastname"]) ? $_POST["lastname"]:''; ?>">
           </div>
         </div>      
            
         <div class="form-group">
           <label class="control-label col-sm-2" for="email">Email:</label>
           <div class="col-sm-3">
-            <input type="email" class="form-control" id="email" placeholder="bobjmartin@example.com">
+            <input type="email" class="form-control" id="email" placeholder="bobjmartin@example.com"
+                    name="email" value="<?php echo ($_POST["email"]) ? $_POST["email"]:''; ?>">
           </div>
         </div>
           
         <div class="form-group">
           <label class="control-label col-sm-2" for="pwd">Password:</label>
           <div class="col-sm-3">
-            <input type="password" class="form-control" id="pwd" placeholder="password">
+            <input type="password" class="form-control" id="pwd" placeholder="password"
+                    name="password" value="<?php echo ($_POST["password"]) ? $_POST["password"]:''; ?>">
           </div>
         </div>
           
         <div class="form-group">
           <label class="control-label col-sm-2" for="confirmpwd">Confirm Password:</label>
           <div class="col-sm-3">
-            <input type="password" class="form-control" id="confirmpwd" placeholder="Confirm password">
+            <input type="password" class="form-control" id="confirm_password" placeholder="Confirm password"
+                    name="confirm_password" value="<?php echo ($_POST["confirm_password"]) ? $_POST["confirm_password"]:''; ?>">
           </div>
         </div>
          
          <div class="form-group">
           <label class="control-label col-sm-2" for="contact_num">Contact Number:</label>
           <div class="col-sm-3">
-            <input type="text" class="form-control" id="contact_num" placeholder="9213321345">
+            <input type="text" class="form-control" id="contact_num" placeholder="9213321345"
+                    name="contact_num" value="<?php echo ($_POST["contact_num"]) ? $_POST["contact_num"]:''; ?>">
           </div>
         </div>
           
         <div class="form-group">
           <label class="control-label col-sm-2" >Gender:</label>
           <div class="col-sm-10">
-           <label class="radio-inline"><input type="radio" name="genderradio" checked="checked"> Male</label>
-           <label class="radio-inline"><input type="radio" name="genderradio"> Female</label>
+           <label class="radio-inline"><input type="radio" name="gender" value="M"
+                <?php echo ($_POST["gender"]) && ($_POST["gender"]==='F') ?'checked="false"':'checked="true"'?>> Male</label>
+           <label class="radio-inline"><input type="radio" name="gender" value="F"
+                <?php echo ($_POST["gender"]) && ($_POST["gender"]==='F') ?'checked="true"':''?> > Female</label>
           </div>
         </div>
           
          <div class="form-group">
           <label class="control-label col-sm-2" for="dob">Date of birth:</label>
           <div class="col-sm-2">
-            <input type="date" class="form-control" id="dob" value="">
+            <input type="date" class="form-control" id="dob" value="" name="dob">
           </div>
-          <span>e.g 21/03/2001</span>
+          
+          <?php
+          if($_POST["dob"])
+          {
+               echo '<span>'.$_POST["dob"].'</span>';
+          }   
+          else
+          {          
+            echo '<span>e.g 21/03/2001</span>';
+          }     
+           
+           ?>
         </div>
           
         <div class="form-group">
           <label class="control-label col-sm-2" >User Type:</label>
           <div class="col-sm-10">
-           <label class="radio-inline"><input type="radio" name="user_type" checked="checked"> Buyer</label>
-           <label class="radio-inline"><input type="radio" name="user_type"> Seller</label>
+              <label class="radio-inline"><input type="radio" name="user_type" value="B"
+                  <?php echo ($_POST["user_type"]) && ($_POST["user_type"]==='S') ?'checked="false"':'checked="true"'?>> Buyer</label>
+           <label class="radio-inline"><input type="radio" name="user_type" value="S"
+                  <?php echo ($_POST["user_type"]) && ($_POST["user_type"]==='S') ?'checked="true"':''?>> Seller</label>
           </div>
         </div>
                 
@@ -150,12 +182,12 @@
           <label class="control-label col-sm-2" for="res_addrstate">Residence Address:</label>  
         
           <div class="col-sm-4">
-            <select class="form-control " id="res_addrstate">  
+            <select class="form-control " id="res_addrstate" name="res_addrstate">  
                 <option value="select res_addrstate" >Select State</option>
                 <option value="Andaman and Nicobar Islands" >Andaman and Nicobar Islands</option>
                 <option value="Andhra Pradesh" >Andhra Pradesh</option>
                 <option value="Arunachal Pradesh" >Arunachal Pradesh</option>
-                <option value="Assam" >Assam</option>
+                <option value="Assam" <?php echo ($_POST['res_addrstate'] && $_POST['res_addrstate'] === 'Assam') ? 'selected="selected"' : '';?>>Assam</option>
                 <option value="Bihar" >Bihar</option>
                 <option value="Chandigarh" >Chandigarh</option>
                 <option value="Chhattisgarh" >Chhattisgarh</option>
@@ -197,15 +229,18 @@
           </div>
           <div class="clearfix"></div>
           <div class="col-sm-offset-2 col-sm-4 needspacing">
-            <input type="text" class="form-control" id="res_addrcity" placeholder="Bhubaneswar">
+            <input type="text" class="form-control" id="res_addrcity" placeholder="Bhubaneswar"
+                    name="res_addrcity" value="<?php echo ($_POST['res_addrcity']) ? $_POST["res_addrcity"]:''; ?>">
           </div>
           <div class="clearfix"></div>  
           <div class="col-sm-offset-2 col-sm-4 needspacing">
-            <input type="text" class="form-control" id="res_addrstreet" placeholder="Gandhi Street">
+            <input type="text" class="form-control" id="res_addrstreet" placeholder="Gandhi Street"
+                    name="res_addrstreet" value="<?php  echo ($_POST["res_addrstreet"]) ? $_POST["res_addrstreet"]:''; ?>">
           </div>
           <div class="clearfix"></div>
           <div class="col-sm-offset-2 col-sm-4 needspacing">
-            <input type="text" class="form-control" id="res_addrzip" placeholder="748123">
+            <input type="text" class="form-control" id="res_addrzip" placeholder="748123"
+                    name="res_addrzip" value="<?php  echo ($_POST["res_addrzip"]) ? $_POST["res_addrzip"]:''; ?>">
           </div>           
         </div>
           
@@ -260,15 +295,18 @@
           </div>
           <div class="clearfix"></div>
           <div class="col-sm-offset-2 col-sm-4 needspacing">
-            <input type="text" class="form-control" id="ofc-addrcity" placeholder="Bhubaneswar">
+            <input type="text" class="form-control" id="ofc-addrcity" placeholder="Bhubaneswar"
+                    name="ofc-addrcity" value="<?php  echo ($_POST["ofc-addrcity"]) ? $_POST["ofc-addrcity"]:''; ?>">
           </div>
           <div class="clearfix"></div>  
           <div class="col-sm-offset-2 col-sm-4 needspacing">
-            <input type="text" class="form-control" id="ofc-addrstreet" placeholder="Street-76">
+            <input type="text" class="form-control" id="ofc-addrstreet" placeholder="Street-76"
+                   name="ofc-addrstreet" value="<?php  echo ($_POST["ofc-addrstreet"]) ? $_POST["ofc-addrstreet"]:''; ?>">
           </div>
           <div class="clearfix"></div>
           <div class="col-sm-offset-2 col-sm-4 needspacing">
-            <input type="text" class="form-control" id="ofc-addrzip" placeholder="785103">
+            <input type="text" class="form-control" id="ofc-addrzip" placeholder="785103"
+                   name="ofc-addrzip" value="<?php  echo ($_POST["ofc-addrzip"]) ? $_POST["ofc-addrzip"]:''; ?>">
           </div>
         </div>
                
@@ -276,22 +314,23 @@
         <div class="form-group">
             <label class="control-label col-sm-2" for="comment">About Me:</label>
             <div class="col-sm-5">
-                <textarea class="form-control" rows="5" id="comment"></textarea>
+                <textarea class="form-control" rows="5" id="comment" placeholder="Describe yourself here..."
+                          name="comment" ><?php  echo ($_POST["comment"]) ? $_POST["comment"]:''; ?></textarea>
             </div>
         </div> 
           
         <div class="form-group">
           <label class="control-label col-sm-2" >Preferred Communication Medium:</label>
-          <div class="col-sm-10" style="padding-top: 2%">
-            <label class="checkbox-inline"><input type="checkbox" value="">Email</label>
-            <label class="checkbox-inline"><input type="checkbox" value="">SMS</label>
-            <label class="checkbox-inline"><input type="checkbox" value="">Call</label>
-            <label class="checkbox-inline"><input type="checkbox" value="">ANY</label>            
+          <div class="col-sm-10 give_padding" >
+              <label class="checkbox-inline"><input type="checkbox" name="pref_comm[]" value="email" > Email</label>
+            <label class="checkbox-inline"><input type="checkbox" name="pref_comm[]" value="sms"> SMS</label>
+            <label class="checkbox-inline"><input type="checkbox" name="pref_comm[]" value="call"> Call</label>
+            <label class="checkbox-inline"><input type="checkbox" name="pref_comm[]" value="any"> ANY</label>            
           </div>
         </div>  
           
         <div class="form-group">
-          <div class="col-sm-offset-4 col-sm-1">
+          <div class="col-sm-offset-2 col-sm-1">
             <button type="submit" class="btn btn-default btn-lg btn-success">Submit</button>
           </div>
           <div class="col-sm-offset-1 col-sm-1">
