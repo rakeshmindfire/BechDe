@@ -5,10 +5,62 @@ error_reporting(E_ALL);
 
 require_once 'helper/states.php';
 require_once 'dbconstants.php';
+require_once 'img_directories.php';
 $msg = '';
 
+
 if (!empty($_POST)) {
-    print_r($_POST);
+    
+   
+    
+
+    if($_FILES['profile_pic']['error']==0){ // $FILES['name']['error'] is 0 if successfully uploaded
+    
+    $target_file = PROFILE_PIC .$_POST['username']. basename($_FILES["profile_pic"]["name"]);
+    $uploadOk = 1;
+    $imageFileType = pathinfo( basename($_FILES["profile_pic"]["name"]));
+    print_r ($_FILES['profile_pic']);
+    print_r ($imageFileType);
+        //Check if image file is a actual image or fake image     
+           $check = getimagesize($_FILES["profile_pic"]["tmp_name"]);
+           print_r ($check);
+           if($check !== false) {
+               echo "File is an image - " . $check["mime"] . ".";
+               $uploadOk = 1;
+           } else {
+               echo "File is not an image.";
+               $uploadOk = 0;
+           }
+        
+       // Check if file already exists
+       if (file_exists($target_file)) {
+           echo "Sorry, file already exists.";
+           $uploadOk = 0;
+       }
+       // Check file size
+       if ($_FILES["profile_pic"]["size"] > 500000) {
+           echo "Sorry, your file is too large.";
+           $uploadOk = 0;
+       }
+       // Allow certain file formats
+       if(!in_array($imageFileType['extension'], array('jpeg','jpg','png','gif'))) {
+           echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+           $uploadOk = 0;
+       }
+       // Check if $uploadOk is set to 0 by an error
+       if ($uploadOk == 0) {
+           echo "Sorry, your file was not uploaded.";
+       // if everything is ok, try to upload file
+       } else {
+           if (move_uploaded_file($_FILES["profile_pic"]["tmp_name"], $target_file)) {
+               echo "The file ". basename( $_FILES["profile_pic"]["name"]). " has been uploaded.";
+           } else {
+               echo "Sorry, there was an error uploading your file.";
+           }
+       }
+    }
+
+    
     $conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
 
     if (!$conn) {
@@ -17,7 +69,7 @@ if (!empty($_POST)) {
 $_POST['pref_comm'] = isset($_POST['pref_comm']) ? $_POST['pref_comm'] : [];
     $sql = "INSERT INTO `users` ("
             . " `first_name`, `middle_name`, `last_name`, `gender`, "
-            . "`dob`, `type`, `bio`, `preferred_comm`, `image`, `mobile`, "
+            . "`dob`, `type`, `bio`, `preferred_comm`, `mobile`,`image`, "
             . "`created_date`) VALUES ('"
             . $_POST['firstname'] . "','"
             . $_POST['middlename'] . "','"
@@ -26,16 +78,18 @@ $_POST['pref_comm'] = isset($_POST['pref_comm']) ? $_POST['pref_comm'] : [];
             . $_POST['dob'] . "','"
             . $_POST['user_type'] . "','"
             . $_POST['comment'] . "','"
-            . implode(',', $_POST['pref_comm']) . "','','"
-            . $_POST['contact_num'] . "',"
+            . implode(',', $_POST['pref_comm']) . "','"
+            . $_POST['contact_num'] . "','"
+            . $_POST['username']
+            . "',"
             . " NOW())";
-
+echo $sql;
     if (! mysqli_query($conn, $sql)) {
            $msg= "New record in USERS FAILURE";
            echo 'err1-->'. mysqli_error($conn);
-           header('Location: error.php');
-          // exit;
+          // header('Location: error.php');
     }
+    
     $user_id = mysqli_insert_id($conn);
 
     $sql_login = "INSERT INTO `login` "
@@ -126,7 +180,7 @@ $_POST['pref_comm'] = isset($_POST['pref_comm']) ? $_POST['pref_comm'] : [];
         <h3><?php echo $msg; ?></h3>
     <div class="container">
       <h3>Please fill in to sign up ...</h3>
-      <form class="form-horizontal" role="form" method="post" action="sign_up.php">
+      <form class="form-horizontal" role="form" method="post" enctype="multipart/form-data" action="sign_up.php">
         <div class="form-group">
           <label class="control-label col-sm-2" for="username">Username:</label>
           <div class="col-sm-2">
@@ -202,12 +256,11 @@ $_POST['pref_comm'] = isset($_POST['pref_comm']) ? $_POST['pref_comm'] : [];
         </div>
           
          <div class="form-group">
-          <label class="control-label col-sm-2" for="dob">Date of birth:</label>
-          <div class="col-sm-2">
-            <input type="date" class="form-control" id="dob" name="dob"  
-                   value="<?php echo isset($_POST["dob"]) ? $_POST["dob"] : '1993-02-01';?>">
-          </div>
-          
+            <label class="control-label col-sm-2" for="dob">Date of birth:</label>
+            <div class="col-sm-2">
+              <input type="date" class="form-control" id="dob" name="dob"  
+                     value="<?php echo isset($_POST["dob"]) ? $_POST["dob"] : '1993-02-01';?>">
+            </div>
         </div>
           
         <div class="form-group">
@@ -219,7 +272,14 @@ $_POST['pref_comm'] = isset($_POST['pref_comm']) ? $_POST['pref_comm'] : [];
                   <?php echo isset($_POST["user_type"]) && ($_POST["user_type"]==='S') ?'checked="true"':''?>> Seller</label>
           </div>
         </div>
-                
+
+        <div class="form-group">
+          <label class="control-label col-sm-2" >Picture:</label>
+          <div class="col-sm-10">
+              <input type="file" name="profile_pic" id="profile_pic" />
+          </div>
+        </div>
+          
         <div class="form-group">
           <label class="control-label col-sm-2" for="res_addrstate">Residence Address:</label>  
         
@@ -309,7 +369,7 @@ $_POST['pref_comm'] = isset($_POST['pref_comm']) ? $_POST['pref_comm'] : [];
           
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-1">
-            <button type="submit" class="btn btn-default btn-lg btn-success">Submit</button>
+            <button type="submit" class="btn btn-default btn-lg btn-success" name="submit">Submit</button>
           </div>
           <div class="col-sm-offset-1 col-sm-1">
               <button type="reset" class="btn btn-default btn-lg btn-danger" onclick="sign_up.php">Reset</button>

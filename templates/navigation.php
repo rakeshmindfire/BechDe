@@ -16,7 +16,7 @@
                     <a href="index.php"></a>
                 </li>
                 <li>
-                    <a class="" href="#">Product List</a>
+                    <a class="" href="product_list.php">Product List</a>
                 </li>
                 <li>
                     <a class="" href="#">Top Sellers</a>
