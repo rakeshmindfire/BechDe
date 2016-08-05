@@ -5,6 +5,10 @@ error_reporting(E_ALL);
 
 // Include the constant file
 require_once 'dbconstants.php';
+require_once 'image_check.php';
+require_once 'img_directories.php';
+
+//print_r($_FILES['product_pic']);
 $msg = '';
 
 // Connecting to DB
@@ -18,32 +22,59 @@ if (!$conn) {
 $sql_getcategory="SELECT `id`, `name` FROM `products_category`";
 $categories = mysqli_query($conn, $sql_getcategory);
 
-if (!empty($_POST)) {    
-
-    $sql = "INSERT INTO `products_list` ( `category`,`user_id`, `name`, `amount`, "
-            . "`description`, `created_date`) VALUES "
-            . "( '"
-            . $_POST['category']
-            . "','33','"
-            . $_POST['product_name']
-            . "', '"
-            . $_POST['product_price']
-            . "', '"
-            . $_POST['description']
-            . "', NOW())";
-
+if (!empty($_POST)) {
     
-    if (! mysqli_query($conn, $sql)) {
-           $msg= "New record in PRODUCT_LIST FAILURE";
-           echo 'err1-->'. mysqli_error($conn);
-           header('Location: error.php');
-          // exit;
-    }
+    $pic_name='product_pic';
+    $uploadOk= image_check($pic_name);
+        if($uploadOk){
 
+        $sql = "INSERT INTO `products_list` ( `category`,`user_id`, `name`, `amount`, "
+                . "`description`, `created_date`) VALUES "
+                . "( '"
+                . $_POST['category']
+                . "','33','"
+                . $_POST['product_name']
+                . "', '"
+                . $_POST['product_price']
+                . "', '"
+                . $_POST['description']
+                . "', NOW())";
+
+
+        if (! mysqli_query($conn, $sql)) {
+               $msg= "New record in PRODUCT_LIST FAILURE";
+               echo 'err1-->'. mysqli_error($conn);
+               header('Location: error.php');
+              // exit;
+        }
+        
+        $product_id = mysqli_insert_id($conn);
+     
+        if(!empty($_FILES[$pic_name]))
+        {
+
+            $extension=(pathinfo( basename($_FILES[$pic_name]["name"]))['extension']);
+            $file_name = PRODUCT_PIC . $product_id .'_'. time() . '.' . $extension;
+            if (move_uploaded_file($_FILES[$pic_name]["tmp_name"], $file_name)) {
+
+                $sql_putimage="UPDATE `products_list` SET `image`='"
+                        . basename($file_name)
+                        ."' WHERE `id`='".$product_id."'";
+
+                if (! mysqli_query($conn, $sql_putimage)) {
+                    $msg= "New record in PRODUCTS_LIST (image) FAILURE";
+                    echo 'err1-->'. mysqli_error($conn);
+                    header('Location: error.php');
+                }
+            }
+       }
+
+        
     header('Location: product_list.php?success=1');
+    }
 }
 
-mysqli_close($conn);
+ mysqli_close($conn);
 
 ?>
 
@@ -68,7 +99,7 @@ mysqli_close($conn);
         <h3><?php echo $msg; ?></h3>
     <div class="container">
       <h3>Add your product ...</h3>
-      <form class="form-horizontal" role="form" method="post" action="product_register.php">
+      <form class="form-horizontal" role="form" method="post" enctype="multipart/form-data" action="product_register.php">
               
         <div class="form-group">
           <label class="control-label col-sm-2" for="category">Category:</label>           
@@ -107,6 +138,13 @@ mysqli_close($conn);
         </div>
         
         <div class="form-group">
+          <label class="control-label col-sm-2" >Photo:</label>
+          <div class="col-sm-10">
+              <input type="file" name="product_pic" id="product_pic" />
+          </div>
+        </div>
+        
+        <div class="form-group">
             <label class="control-label col-sm-2" for="description">Description:</label>
             <div class="col-sm-5">
                 <textarea class="form-control" rows="5" id="description" 
@@ -118,7 +156,7 @@ mysqli_close($conn);
                     
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-1">
-              <button type="submit" class="btn btn-default btn-lg btn-success" onclick="success.php">Add</button>
+              <button type="submit" class="btn btn-default btn-lg btn-success">Add</button>
           </div>
           <div class="col-sm-offset-1 col-sm-1">
               <button type="reset" class="btn btn-default btn-lg btn-danger">Clear</button>
