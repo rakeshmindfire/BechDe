@@ -8,15 +8,23 @@
     margin-top:10px;
 }
 
-#mainNav{
+#mainNav {
     background-color: black;
  
 }
 
-.navbar-brand{
+.navbar-brand {
     font-size: 28px;
 }
 
-give_padding{
+give_padding {
     padding-top: 2%;
+}
+
+table img {
+    width: 100px;
+    height: 100px;
+}
+td, th {
+    text-align: center;
 }

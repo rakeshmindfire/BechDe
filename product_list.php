@@ -47,7 +47,7 @@ $products = mysqli_query($conn, $sql_getproducts);
     <div class="container table-responsive">
       <h2>Your Products</h2>
     
-      <table class="table table-bordered" align="center">
+      <table class="table table-bordered table-condensed" >
         <thead>
           <tr>
             <th>Category</th>
@@ -64,7 +64,7 @@ $products = mysqli_query($conn, $sql_getproducts);
                     while($row = mysqli_fetch_assoc($products)) {                    
                         echo '<tr> <td>'.$row['category_name'].'</td><td>';
                         echo  '<img src="'.(!is_null($row['image'])?PRODUCT_PIC.$row['image']:NOIMAGE).'"'
-                                . ' alt= "product image" width="100px" height="100px">';
+                                . ' alt= "product image" >';
                         echo '</td><td>'.$row['product_name'].'</td><td>'.$row['amount'].'</td><td>'
                                 .$row['description'].'</td><td>'.$row['created_date'].'</td></tr>';
                     }

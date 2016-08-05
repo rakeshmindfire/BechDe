@@ -4,9 +4,9 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Include the constant file
+require_once 'helper/image_check.php';
 require_once 'dbconstants.php';
 require_once 'image_check.php';
-require_once 'img_directories.php';
 
 //print_r($_FILES['product_pic']);
 $msg = '';
