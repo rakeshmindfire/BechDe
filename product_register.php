@@ -33,30 +33,49 @@ if (!empty($_POST)) {
     
     $pic_name='product_pic';
     $uploadOk= image_check($pic_name);
-        if($uploadOk){
+    if($uploadOk){
 
-        $sql = "INSERT INTO `products_list` ( `category`,`user_id`, `name`, `amount`, "
-                . "`description`, `created_date`) VALUES "
-                . "( '"
+        if(!$is_update) {
+            $sql = "INSERT INTO `products_list` ( `category`,`user_id`, `name`, `amount`, "
+                    . "`description`, `created_date`) VALUES "
+                    . "( '"
+                    . $_POST['category']
+                    . "','33','"
+                    . $_POST['product_name']
+                    . "', '"
+                    . $_POST['product_price']
+                    . "', '"
+                    . $_POST['description']
+                    . "', NOW())";
+
+        } else {
+            $sql="UPDATE `products_list` SET `category` = '"
                 . $_POST['category']
-                . "','33','"
+                . "', `name` = '"
                 . $_POST['product_name']
-                . "', '"
-                . $_POST['product_price']
-                . "', '"
+                . "', `amount` = '"
+                 . $_POST['product_price']
+                . "', `description` = '"
                 . $_POST['description']
-                . "', NOW())";
-
-
+                . "' WHERE `products_list`.`id` = "
+                . $_GET['update_id'];
+        }
         if (! mysqli_query($conn, $sql)) {
                $msg= "New record in PRODUCT_LIST FAILURE";
                echo 'err1-->'. mysqli_error($conn);
                header('Location: error.php');
               // exit;
         }
-        
-        $product_id = mysqli_insert_id($conn);
-     
+
+        $product_id = $is_update ? $_GET['update_id'] : mysqli_insert_id($conn);
+        if($is_update) {
+           $sql_getimage="SELECT `image` from `products_list` WHERE `id`=".$_GET['update_id'];
+           $imgtoupdate=mysqli_fetch_assoc(mysqli_query($conn, $sql_getimage));
+           if(!is_null($imgtoupdate['image']) && file_exists(PRODUCT_PIC.$imgtoupdate['image'])) {
+               unlink(PRODUCT_PIC.$imgtoupdate['image']);
+           }
+        }
+
         if(!empty($_FILES[$pic_name]))
         {
 
@@ -74,8 +93,10 @@ if (!empty($_POST)) {
                     header('Location: error.php');
                 }
             }
-       } 
-    header('Location: product_list.php?success=1');
+        }
+        $message= $is_update ? "Product update successfull" : "Product registration successfull";
+        header("Location: product_list.php?message=$message");
+    
     }
 }
 
@@ -88,7 +109,7 @@ if (!empty($_POST)) {
 
     <!--head-->
     <head>
-        <title>QuickSeller:Add your Product</title>  
+        <title>QuickSeller:<?php echo $is_update? 'Update ': 'Add '; ?> your Product</title>  
         <?php
            require_once 'templates/header.php';     
         ?>
@@ -103,8 +124,9 @@ if (!empty($_POST)) {
         <section>
             <h3><?php echo $msg; ?></h3>
         <div class="container">
-          <h3>Add your product ...</h3>
-          <form class="form-horizontal" role="form" method="post" enctype="multipart/form-data" action="product_register.php">
+          <h3><?php echo $is_update? 'update ': 'add '; ?>  your product ...</h3>
+          <form class="form-horizontal" role="form" method="post" enctype="multipart/form-data" 
+                action="product_register.php<?php echo $is_update ? '?update_id='.$_GET['update_id']:''; ?>">
 
             <div class="form-group">
               <label class="control-label col-sm-2" for="category">Category:</label>           
@@ -115,7 +137,8 @@ if (!empty($_POST)) {
                         <?php
                             while($row = mysqli_fetch_assoc($categories)) {                    
                                 echo '<option value="'.$row['id'].'" ';
-                                echo  (isset($_POST["category"]) && $_POST["category"] == $row['id'])
+                                echo  ($is_update && $row['id'] == $row_toupdate['category'])
+                                || (isset($_POST["category"]) && $_POST["category"] == $row['id'])
                                     ?'selected ':'';
                                 echo    '>'.$row['name'].'</option>';
                             }         
@@ -128,8 +151,8 @@ if (!empty($_POST)) {
                 <label class="control-label col-sm-2" for="product_name">Product Name:</label>
                 <div class="col-sm-2">
                     <input type="text" class="form-control" id="product_name" placeholder="Samsung 2360"
-                       name="product_name" value="<?php echo (isset($_POST["product_name"])) ? 
-                       $_POST["product_name"]:''; ?>">
+                       name="product_name" value="<?php echo  $is_update ? $row_toupdate['name']:
+                           ((isset($_POST["product_name"])) ? $_POST["product_name"]:''); ?>">
                 </div>
             </div>
 
@@ -137,8 +160,9 @@ if (!empty($_POST)) {
                 <label class="control-label col-sm-2" for="product_price">Price (INR):</label>
                 <div class="col-sm-3">
                     <input type="number" min='0' class="form-control" id="product_price" 
-                        placeholder="12324" name="product_price" value="
-                        <?php echo (isset($_POST["product_price"])) ? $_POST["product_price"] : ''; ?>">
+                        placeholder="12324" name="product_price" value=
+                        "<?php echo $is_update ? $row_toupdate['amount']: 
+                            ((isset($_POST["product_price"])) ? $_POST["product_price"] : ''); ?>">
                 </div>
             </div>
 
@@ -153,10 +177,9 @@ if (!empty($_POST)) {
                 <label class="control-label col-sm-2" for="description">Description:</label>
                 <div class="col-sm-5">
                     <textarea class="form-control" rows="5" id="description" 
-                            placeholder="Describe the product..." name="description" >
-                            <?php
+                            placeholder="Describe the product..." name="description" ><?php
                             if($is_update) {
-                                
+                                echo $row_toupdate['description'];
                             } else {
                                   echo isset($_POST["description"]) ? $_POST["description"]:'';
                                 }?>
@@ -166,7 +189,8 @@ if (!empty($_POST)) {
 
             <div class="form-group">
               <div class="col-sm-offset-2 col-sm-1">
-                  <button type="submit" class="btn btn-default btn-lg btn-success">Add</button>
+                  <button type="submit" class="btn btn-default btn-lg btn-success">
+                      <?php echo $is_update?'Update': 'Add'; ?></button>
               </div>
               <div class="col-sm-offset-1 col-sm-1">
                   <button type="reset" class="btn btn-default btn-lg btn-danger">Clear</button>

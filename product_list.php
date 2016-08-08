@@ -46,8 +46,8 @@ $products = mysqli_query($conn, $sql_getproducts);
     <?php require_once 'templates/navigation.php'; ?>
 
     <section>
-        <?php if(isset($_GET['success']) && '1' === $_GET['success']) {?>
-            <div class='alert-success'> Product registration Successful ! </div>
+        <?php if(isset($_GET['message'])) {?>
+            <div class='alert-success'> <?php echo $_GET['message']?> ! </div>
         <?php } ?>
     </section>
     
@@ -72,14 +72,15 @@ $products = mysqli_query($conn, $sql_getproducts);
                 if(mysqli_num_rows($products)>0){
                     while($row = mysqli_fetch_assoc($products)) {                    
                         echo '<tr> <td>'.$row['category_name'].'</td><td>';
-                        echo  '<img src="'.(!is_null($row['image'])?PRODUCT_PIC.$row['image']:NOIMAGE).'"'
-                                . ' alt= "product image" >';
+                        echo  '<img src="'.((!is_null($row['image']) && file_exists(PRODUCT_PIC.$row['image']))
+                                ?PRODUCT_PIC.$row['image']:NOIMAGE).'" alt= "product image" >';
                         echo '</td><td>'.$row['product_name'].'</td><td>'.$row['amount'].'</td><td>'
                                 .$row['description'].'</td><td>'.$row['created_date'].'</td>';
                         echo '<td><div class="container-fluid"><a href="product_register.php?update_id='.$row['id'].'"'
-                            . ' class=" btn btn-warning">Update</a><div class="clearfix"></div>'
-                            . '<a href="product_list.php?delete_id='.$row['id'].'" class=" btn btn-danger">'
-                            . 'Delete</a></div></td></tr>';
+                            . ' class=" btn btn-warning glyphicon glyphicon-pencil"></a><div class="clearfix"></div>'
+                            . '<a href="product_list.php?delete_id='.$row['id'].'"'
+                            . ' class=" btn btn-danger glyphicon glyphicon-remove">'
+                            . '</a></div></td></tr>';
                     }
                 }
             ?>

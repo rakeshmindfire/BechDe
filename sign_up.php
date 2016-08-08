@@ -4,17 +4,15 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once 'helper/states.php';
-require_once 'helper/image_check.php';
-require_once 'dbconstants.php';
-require_once 'img_directories.php';
+require_once 'helper/validation.php';
+require_once 'config/constants.php';
 
 $msg = '';
-print_r($_POST);
-print_r($_FILES);
 
 if (!empty($_POST)) {
     $pic_name = 'profile_pic';
     $uploadOk = image_check($pic_name);
+    $error = validate_data($_POST);
 
     if ($uploadOk) {
         $conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
@@ -64,13 +62,10 @@ if (!empty($_POST)) {
         if (!mysqli_query($conn, $sql_login)) {
             $msg = "New record in LOGIN FAILURE";
             echo 'err2-->' . mysqli_error($conn);
-            //exit;
         }
 
-        $sql_addr = "INSERT INTO `user_address` ("
-                . "`user_id`, `type`, `street`, `city`, `state`, `zip`,"
-                . " `created_date`) VALUES"
-                . " ('"
+        $sql_addr = "INSERT INTO `user_address` (`user_id`, `type`, `street`, `city`, `state`, `zip`"
+                . ",`created_date`) VALUES ('"
                 . $user_id
                 . "', '"
                 . "1"
@@ -130,7 +125,6 @@ if (!empty($_POST)) {
                 }
             }
         }
-
         mysqli_close($conn);
     } else {
         echo "Sorry, please check your file type and size";
@@ -162,15 +156,16 @@ require_once 'templates/header.php';
                 <h3>Please fill in to sign up ...</h3>
                 <form class="form-horizontal" role="form" method="post" enctype="multipart/form-data" action="sign_up.php">
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="username">Username:</label>
+                        <label class="control-label col-sm-2" for="username">Username* :</label>
                         <div class="col-sm-2">
                             <input type="text" class="form-control" id="username" placeholder="bob234"
                                    name="username" value="<?php echo (isset($_POST["username"])) ? $_POST["username"] : ''; ?>">
                         </div>
+                        <div class="col-sm-2"><?php ?> </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="firstname">First name:</label>
+                        <label class="control-label col-sm-2" for="firstname">First name* :</label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="firstname" placeholder="Bob"
                                    name="firstname" value="<?php echo (isset($_POST["firstname"])) ? $_POST["firstname"] : ''; ?>">
@@ -178,7 +173,7 @@ require_once 'templates/header.php';
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="middlename">Middle name:</label>
+                        <label class="control-label col-sm-2" for="middlename">Middle name :</label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="middlename" placeholder="James"
                                    name="middlename" value="<?php echo isset($_POST["middlename"]) ? $_POST["middlename"] : ''; ?>">
@@ -186,7 +181,7 @@ require_once 'templates/header.php';
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="lastname">Last name:</label>
+                        <label class="control-label col-sm-2" for="lastname">Last name* :</label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="lastname" placeholder="Martin"
                                    name="lastname" value="<?php echo isset($_POST["lastname"]) ? $_POST["lastname"] : ''; ?>">
@@ -194,7 +189,7 @@ require_once 'templates/header.php';
                     </div>      
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="email">Email:</label>
+                        <label class="control-label col-sm-2" for="email">Email* :</label>
                         <div class="col-sm-3">
                             <input type="email" class="form-control" id="email" placeholder="bobjmartin@example.com"
                                    name="email" value="<?php echo isset($_POST["email"]) ? $_POST["email"] : ''; ?>">
@@ -202,7 +197,7 @@ require_once 'templates/header.php';
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="pwd">Password:</label>
+                        <label class="control-label col-sm-2" for="pwd">Password* :</label>
                         <div class="col-sm-3">
                             <input type="password" class="form-control" id="pwd" placeholder="password"
                                    name="password" value="<?php echo isset($_POST["password"]) ? $_POST["password"] : ''; ?>">
@@ -210,7 +205,7 @@ require_once 'templates/header.php';
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="confirmpwd">Confirm Password:</label>
+                        <label class="control-label col-sm-2" for="confirmpwd">Confirm Password* :</label>
                         <div class="col-sm-3">
                             <input type="password" class="form-control" id="confirm_password" placeholder="Confirm password"
                                    name="confirm_password" value="<?php echo isset($_POST["confirm_password"]) ? $_POST["confirm_password"] : ''; ?>">
@@ -218,7 +213,7 @@ require_once 'templates/header.php';
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="contact_num">Contact Number:</label>
+                        <label class="control-label col-sm-2" for="contact_num">Contact Number* :</label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="contact_num" placeholder="9213321345"
                                    name="contact_num" value="<?php echo isset($_POST["contact_num"]) ? $_POST["contact_num"] : ''; ?>">
@@ -229,14 +224,16 @@ require_once 'templates/header.php';
                         <label class="control-label col-sm-2" >Gender:</label>
                         <div class="col-sm-10">
                             <label class="radio-inline"><input type="radio" name="gender" value="M"
-<?php echo isset($_POST["gender"]) && ($_POST["gender"] === 'F') ? '' : 'checked="true"' ?>> Male</label>
+                                <?php echo isset($_POST["gender"]) && ($_POST["gender"] === 'F')
+                                    ? '' : 'checked="true"' ?>> Male</label>
                             <label class="radio-inline"><input type="radio" name="gender" value="F"
-<?php echo isset($_POST["gender"]) && ($_POST["gender"] === 'F') ? 'checked="true"' : '' ?> > Female</label>
+                                <?php echo isset($_POST["gender"]) && ($_POST["gender"] === 'F')
+                                ? 'checked="true"' : '' ?> > Female</label>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="dob">Date of birth:</label>
+                        <label class="control-label col-sm-2" for="dob">Date of birth* :</label>
                         <div class="col-sm-2">
                             <input type="date" class="form-control" id="dob" name="dob"  
                                    value="<?php echo isset($_POST["dob"]) ? $_POST["dob"] : '1993-02-01'; ?>">
@@ -244,7 +241,7 @@ require_once 'templates/header.php';
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" >User Type:</label>
+                        <label class="control-label col-sm-2" >User Type :</label>
                         <div class="col-sm-10">
                             <label class="radio-inline"><input type="radio" name="user_type" value="B"
 <?php echo isset($_POST["user_type"]) && ($_POST["user_type"] === 'S') ? 'checked="false"' : 'checked="true"' ?>> Buyer</label>
@@ -254,14 +251,14 @@ require_once 'templates/header.php';
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" >Picture:</label>
+                        <label class="control-label col-sm-2" >Picture :</label>
                         <div class="col-sm-10">
                             <input type="file" name="profile_pic" id="profile_pic" />
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="res_addrstate">Residence Address:</label>  
+                        <label class="control-label col-sm-2" for="res_addrstate">Residence Address* :</label>  
 
                         <div class="col-sm-4">
                             <select class="form-control " id="res_addrstate" name="res_addrstate">  
@@ -293,7 +290,7 @@ foreach ($states as $state_id => $state_name) {
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="ofc_addrstate">Office Address:</label>           
+                        <label class="control-label col-sm-2" for="ofc_addrstate">Office Address :</label>           
 
                         <div class="col-sm-4">
                             <select class="form-control " id="ofc_addrstate" name="ofc_addrstate" >  
@@ -325,7 +322,7 @@ foreach ($states as $state_id => $state_name) {
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="comment">About Me:</label>
+                        <label class="control-label col-sm-2" for="comment">About Me :</label>
                         <div class="col-sm-5">
                             <textarea class="form-control" rows="5" id="comment" placeholder="Describe yourself here..."
                                       name="comment" ><?php echo isset($_POST["comment"]) ? $_POST["comment"] : ''; ?></textarea>

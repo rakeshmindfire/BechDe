@@ -25,6 +25,23 @@ function image_check($pic){
         }
     } 
 return $uploadOk;
+}
+
+function validate_data($data) {
  
+    $err = [];
+    
+    foreach ($data as $key => $value) {
+        switch ($key) {
+            case 'firstname':
+            case 'lastname':
+                $err[$key] = alphabet($value);
+                break;
+            
+            
+            
+            
+        }
+    }
 }
 ?>
