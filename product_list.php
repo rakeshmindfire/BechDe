@@ -13,10 +13,19 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-$sql_getproducts="SELECT pc.name as category_name,pl.image,pl.name as product_name,pl.amount,"
+if(isset($_GET['delete_id']) ) {
+    $sql_delete="DELETE FROM `products_list` WHERE `products_list`.`id` ='". $_GET['delete_id']."'";
+    mysqli_query($conn, $sql_delete);    
+} 
+
+
+
+$sql_getproducts="SELECT pl.id,pc.name as category_name,pl.image,pl.name as product_name,pl.amount,"
         . "pl.description,pl.created_date FROM products_list pl "
         . "JOIN products_category pc ON pl.category=pc.id WHERE pl.user_id=33 "
         . "ORDER BY pl.created_date DESC" ;
+echo $sql_getproducts;
+
 $products = mysqli_query($conn, $sql_getproducts);
 
 
@@ -32,7 +41,7 @@ $products = mysqli_query($conn, $sql_getproducts);
     </head>
 
 
-<body id="sign_up">
+<body >
 
     <!-- Include the navigation bar -->
     <?php require_once 'templates/navigation.php'; ?>
@@ -55,7 +64,8 @@ $products = mysqli_query($conn, $sql_getproducts);
             <th>Name</th>
             <th>Amount</th>
             <th>Description</th>
-             <th>Uploaded on</th>
+            <th>Uploaded on</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -66,7 +76,11 @@ $products = mysqli_query($conn, $sql_getproducts);
                         echo  '<img src="'.(!is_null($row['image'])?PRODUCT_PIC.$row['image']:NOIMAGE).'"'
                                 . ' alt= "product image" >';
                         echo '</td><td>'.$row['product_name'].'</td><td>'.$row['amount'].'</td><td>'
-                                .$row['description'].'</td><td>'.$row['created_date'].'</td></tr>';
+                                .$row['description'].'</td><td>'.$row['created_date'].'</td>';
+                        echo '<td><div class="container-fluid"><a href="product_register.php?update_id='.$row['id'].'"'
+                            . ' class=" btn btn-warning">Update</a><div class="clearfix"></div>'
+                            . '<a href="product_list.php?delete_id='.$row['id'].'" class=" btn btn-danger">'
+                            . 'Delete</a></div></td></tr>';
                     }
                 }
             ?>
