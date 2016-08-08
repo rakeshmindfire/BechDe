@@ -4,12 +4,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Include the constant file
-require_once 'helper/image_check.php';
-require_once 'dbconstants.php';
+require_once 'helper/validation.php';
+require_once 'config/constants.php';
 
-//print_r($_FILES['product_pic']);
 $msg = '';
-$is_update = FALSE; // 1 =add mode ; 2 =update_mode
+$is_update = FALSE;
 
 // Connecting to DB
 $conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);

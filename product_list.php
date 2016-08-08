@@ -2,8 +2,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-require_once 'dbconstants.php';
-require_once 'img_directories.php';
+require_once 'config/constants.php';
 
 // Connecting to DB
 $conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
