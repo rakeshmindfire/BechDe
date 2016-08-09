@@ -19,10 +19,7 @@
                     <a class="" href="product_list.php">Product List</a>
                 </li>
                 <li>
-                    <a class="" href="#">Top Sellers</a>
-                </li>
-                <li>
-                    <a class="" href="#">About Us</a>
+                    <a class="" href="seller_list.php">Top Sellers</a>
                 </li>
                 <li>
                     <a class="" href="sign_up.php">Register</a>

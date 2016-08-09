@@ -22,7 +22,7 @@
             <div class="intro-text">
                 <div class="intro-lead-in">Welcome To QuickSeller</div>
                 <div class="intro-heading">1,2,3 and its sold</div>
-                <a href="log_in.php" class=" btn btn-xl">Log in</a>
+                <a href="#" class=" btn btn-xl">Log in</a>
             </div>
         </div>
     </header>

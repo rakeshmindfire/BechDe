@@ -12,20 +12,13 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-if(isset($_GET['delete_id']) ) {
-    $sql_delete="DELETE FROM `products_list` WHERE `products_list`.`id` ='". $_GET['delete_id']."'";
-    mysqli_query($conn, $sql_delete);    
-} 
-
-
-
-$sql_getproducts="SELECT pl.id,pc.name as category_name,pl.image,pl.name as product_name,pl.amount,"
+$sql_getsellers="SELECT pl.id,pc.name as category_name,pl.image,pl.name as product_name,pl.amount,"
         . "pl.description,pl.created_date FROM products_list pl "
-        . "JOIN products_category pc ON pl.category=pc.id "
+        . "JOIN products_category pc ON pl.category=pc.id WHERE pl.user_id=33 "
         . "ORDER BY pl.created_date DESC" ;
-echo $sql_getproducts;
+echo $sql_getsellers;
 
-$products = mysqli_query($conn, $sql_getproducts);
+$sellers = mysqli_query($conn, $sql_getsellers);
 
 
 ?>
@@ -33,7 +26,7 @@ $products = mysqli_query($conn, $sql_getproducts);
 <html lang="en">
     <!--head-->
     <head>
-        <title>QuickSeller:Products List</title>  
+        <title>QuickSeller:Top Sellers</title>  
         <?php
            require_once 'templates/header.php';     
         ?>
@@ -44,32 +37,10 @@ $products = mysqli_query($conn, $sql_getproducts);
 
     <!-- Include the navigation bar -->
     <?php require_once 'templates/navigation.php'; ?>
-
     <section>
-        <?php if(isset($_GET['success'])) {?>
-            <div class='alert-success'> 
-            <?php switch($_GET['success']) {
-                case 1:
-                    echo "Product registered successfully";
-                    break;
-                
-                case 2:
-                    echo "Product updated successfully";
-                    break;
-                
-                case 3:
-                    echo "Product deleted successfully";
-                    break;
-            ?>
-                ! </div>
-        <?php }} ?>
-    </section>
-    
-
     <div class="container table-responsive">
-      
-    <?php if(mysqli_num_rows($products)>0){ ?>
       <h2>Your Products</h2>
+    
       <table class="table table-bordered table-condensed" >
         <thead>
           <tr>
@@ -84,6 +55,7 @@ $products = mysqli_query($conn, $sql_getproducts);
         </thead>
         <tbody>
             <?php
+                if(mysqli_num_rows($products)>0){
                     while($row = mysqli_fetch_assoc($products)) {                    
                         echo '<tr> <td>'.$row['category_name'].'</td><td>';
                         echo  '<img src="'.((!is_null($row['image']) && file_exists(PRODUCT_PIC.$row['image']))
@@ -92,18 +64,16 @@ $products = mysqli_query($conn, $sql_getproducts);
                                 .$row['description'].'</td><td>'.$row['created_date'].'</td>';
                         echo '<td><a href="product_register.php?update_id='.$row['id'].'"'
                             . ' class="glyphicon glyphicon-pencil color_edit">&nbsp;'
-                            . '<a href="product_list.php?delete_id='.$row['id'].'&success=3"'
+                            . '<a href="product_list.php?delete_id='.$row['id'].'"'
                             . ' class=" glyphicon glyphicon-remove color_remove">'
                             . '</a></td></tr>';
                     }
+                }
             ?>
         </tbody>
       </table>
-      <?php } else {?>
-      <h2>No Products Found!! </h2><br><h4>Please add product <a href="product_register.php"> click now</a></h4>
-      <?php } ?>
     </div>
-    
+</section>    
 </body>
 </html>
 
