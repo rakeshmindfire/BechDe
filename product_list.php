@@ -13,7 +13,13 @@ if (!$conn) {
 }
 
 if(isset($_GET['delete_id']) ) {
-    $sql_delete="DELETE FROM `products_list` WHERE `products_list`.`id` ='". $_GET['delete_id']."'";
+    $sql_getimage = "SELECT `image` FROM `products_list` WHERE `products_list`.`id` ='". $_GET['delete_id']."'";
+    $image_to_delete = mysqli_query($conn, $sql_getimage);
+    if (!empty(mysqli_num_rows($image_to_delete))) {
+        $image_to_delete = mysqli_fetch_assoc( $image_to_delete);
+        unlink( PRODUCT_PIC . $image_to_delete['image']);
+    } 
+    $sql_delete = "DELETE FROM `products_list` WHERE `products_list`.`id` ='". $_GET['delete_id']."'";
     mysqli_query($conn, $sql_delete);    
 } 
 
@@ -23,7 +29,6 @@ $sql_getproducts="SELECT pl.id,pc.name as category_name,pl.image,pl.name as prod
         . "pl.description,pl.created_date FROM products_list pl "
         . "JOIN products_category pc ON pl.category=pc.id "
         . "ORDER BY pl.created_date DESC" ;
-echo $sql_getproducts;
 
 $products = mysqli_query($conn, $sql_getproducts);
 
@@ -38,35 +43,30 @@ $products = mysqli_query($conn, $sql_getproducts);
            require_once 'templates/header.php';     
         ?>
     </head>
-
-
 <body >
 
     <!-- Include the navigation bar -->
     <?php require_once 'templates/navigation.php'; ?>
 
-    <section>
-        <?php if(isset($_GET['success'])) {?>
-            <div class='alert-success'> 
-            <?php switch($_GET['success']) {
-                case 1:
-                    echo "Product registered successfully";
-                    break;
-                
-                case 2:
-                    echo "Product updated successfully";
-                    break;
-                
-                case 3:
-                    echo "Product deleted successfully";
-                    break;
-            ?>
-                ! </div>
-        <?php }} ?>
-    </section>
-    
+    <div class="confirmation">
+    <?php if(isset($_GET['success'])) {
+        switch($_GET['success']) {
+            case 1:
+                echo "Product registered successfully!";
+                break;
 
-    <div class="container table-responsive">
+            case 2:
+                echo "Product updated successfully!";
+                break;
+
+            case 3:
+                echo "Product deleted successfully!";
+                break;
+        }
+    } ?>
+    </div>
+    
+    <div class="container table-responsive" >
       
     <?php if(mysqli_num_rows($products)>0){ ?>
       <h2>Your Products</h2>
@@ -103,7 +103,7 @@ $products = mysqli_query($conn, $sql_getproducts);
       <h2>No Products Found!! </h2><br><h4>Please add product <a href="product_register.php"> click now</a></h4>
       <?php } ?>
     </div>
-    
+    <?php require_once 'templates/footer.php';?>
 </body>
 </html>
 
