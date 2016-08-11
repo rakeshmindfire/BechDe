@@ -1,4 +1,4 @@
-<?php 
+<?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -11,16 +11,18 @@ $conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
-
-$sql_getsellers="SELECT pl.id,pc.name as category_name,pl.image,pl.name as product_name,pl.amount,"
-        . "pl.description,pl.created_date FROM products_list pl "
-        . "JOIN products_category pc ON pl.category=pc.id WHERE pl.user_id=33 "
-        . "ORDER BY pl.created_date DESC" ;
-echo $sql_getsellers;
-
-$sellers = mysqli_query($conn, $sql_getsellers);
-
-
+$sql_get_sellers = "SELECT u.id,CONCAT(u.first_name,' ',u.middle_name,' ',u.last_name) as full_name,"
+        . "u.image,u.gender,u.dob,u.bio,u.preferred_comm,u.mobile,ua.type,"
+        . "CONCAT(ua.street,', ',ua.city,', ',st.name,', ',ua.zip) as address, l.email,"
+        . "CONCAT(uao.street,', ',uao.city,', ',st.name,', ',uao.zip) as office_address "
+        . "FROM `users` u "
+        . "JOIN user_address ua ON u.id=ua.user_id AND ua.type =1 "
+        . "LEFT JOIN user_address uao ON u.id=uao.user_id AND uao.type =2 "
+        . "LEFT JOIN state_table st ON ua.state= st.id OR uao.state = st.id "
+        . "JOIN `login` l ON u.id=l.user_id "
+        . "WHERE u.type='S' "
+        . "ORDER BY u.id ASC";
+$sellers_list = mysqli_query($conn, $sql_get_sellers);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,52 +30,71 @@ $sellers = mysqli_query($conn, $sql_getsellers);
     <head>
         <title>QuickSeller:Top Sellers</title>  
         <?php
-           require_once 'templates/header.php';     
+        require_once 'templates/header.php';
         ?>
+
     </head>
+    <body >
+        <!-- Include the navigation bar -->
+        <?php require_once 'templates/navigation.php'; ?>
+        <div class='confirmation margin-top120'> </div>
+        <div class="container">
+            <h2>Top Sellers</h2>
 
+            <?php if (mysqli_num_rows($sellers_list) > 0) { ?>
+                <div class="panel-group" id="accordion">
+                    <?php while ($seller = mysqli_fetch_assoc($sellers_list)) { ?>
 
-<body >
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#<?php echo $seller['id'] ?>"><?php echo $seller['full_name'] ?></a>
+                                </h4>
+                            </div>
+                            <div id="<?php echo $seller['id'] ?>" class="panel-collapse collapse ">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <img src="<?php echo empty($seller['image']) || !file_exists(PROFILE_PIC . $seller['image']) ? NOIMAGE : PROFILE_PIC . $seller['image']; ?>" class="col-xs-2 img-circle">
+                                        <div class="col-md-9"> 
+                                            <div>
+                                                <b>Sex : </b><?php echo $seller['gender'] === 'M' ? 'Male' : 'Female'; ?>
+                                            </div>
+                                            <div>
+                                                <b>DOB : </b><?php echo $seller['dob']; ?>
+                                            </div>
+                                            <div>
+                                                <b>Mobile : </b><?php echo $seller['mobile']; ?>
+                                            </div>
+                                            <div>
+                                                <b>About : </b><?php echo empty($seller['bio']) ? 'None' : $seller['bio']; ?>
+                                            </div>
+                                            <div>
+                                                <b>Preferred communication : </b><?php echo empty($seller['preferred_comm']) ? 'None' : $seller['preferred_comm']; ?>
+                                            </div>
+                                            <div>
+                                                <b>Residence Address : </b><?php echo $seller['address']; ?>
+                                            </div>
+                                            <div>
+                                                <b>Office Address : </b><?php echo empty($seller['office_address']) ? 'Not Available' : $seller['office_address']; ?>
+                                            </div>
+                                            <div>
+                                                <b>Email : </b><?php echo $seller['email']; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-    <!-- Include the navigation bar -->
-    <?php require_once 'templates/navigation.php'; ?>
-    <section>
-    <div class="container table-responsive">
-      <h2>Your Products</h2>
-    
-      <table class="table table-bordered table-condensed" >
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Amount</th>
-            <th>Description</th>
-            <th>Uploaded on</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-            <?php
-                if(mysqli_num_rows($products)>0){
-                    while($row = mysqli_fetch_assoc($products)) {                    
-                        echo '<tr> <td>'.$row['category_name'].'</td><td>';
-                        echo  '<img src="'.((!is_null($row['image']) && file_exists(PRODUCT_PIC.$row['image']))
-                                ?PRODUCT_PIC.$row['image']:NOIMAGE).'" alt= "product image" >';
-                        echo '</td><td>'.$row['product_name'].'</td><td>'.$row['amount'].'</td><td>'
-                                .$row['description'].'</td><td>'.$row['created_date'].'</td>';
-                        echo '<td><a href="product_register.php?update_id='.$row['id'].'"'
-                            . ' class="glyphicon glyphicon-pencil color_edit">&nbsp;'
-                            . '<a href="product_list.php?delete_id='.$row['id'].'"'
-                            . ' class=" glyphicon glyphicon-remove color_remove">'
-                            . '</a></td></tr>';
-                    }
-                }
-            ?>
-        </tbody>
-      </table>
-    </div>
-</section>    
-</body>
+        <?php
+    }
+} else {
+    ?>
+                    <h2>There are no sellers currently. </h2>
+                <?php } ?>   
+            </div>
+        </div>
+<?php require_once 'templates/footer.php'; ?>
+    </body>
 </html>
 

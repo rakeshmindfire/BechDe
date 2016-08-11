@@ -1,29 +1,29 @@
 
 .navbar-custom .navbar-brand {
-  color: #fed136;
-   font-family: 'Sansita One', cursive;
+    color: #fed136;
+    font-family: 'Sansita One', cursive;
 }
 
-.needspacing{
+.need-spacing{
     margin-top:10px;
 }
 
-#mainNav {
-    background-color: black;
- 
+#main-nav {
+    background-color: black; 
 }
 
 .navbar-brand {
     font-size: 28px;
 }
 
-give_padding {
+give-padding {
     padding-top: 2%;
 }
 
 table img {
     width: 100px;
     height: 100px;
+    cursor: pointer;
 }
 
 td, th {
@@ -31,21 +31,48 @@ td, th {
 }
 
 section {
-     padding:  100px 0; 
+    padding: 0 0 0 0 !important; 
+    height: auto !important;
+    min-height: 100%;
 }
 
-.color_edit {
+.color-edit {
     color:blue;
 }
 
-.color_remove, .error_msg {
+.color-remove, .error-msg {
     color:red;
 }
 
-.index_body {
-    background-image: url('../img/header-bg.jpg') no-repeat center center fixed;
-    
+.modal-body {
     text-align: center;
-    color: white;
 }
 
+.confirmation {
+    padding-bottom: 50px;
+    padding-left: 40px;
+    color: #3c763d;
+    font-size: medium;
+}
+
+.margin-top120 {
+    margin-top: 120px;
+}
+
+html, body {
+    height: 100%;
+}
+
+.container {
+    height: auto !important;
+    min-height: 100%;
+}
+
+label {
+    font-size: 13px;
+}
+
+.img-thumbnail {
+    width: 500px;
+    height: 500px; 
+}
