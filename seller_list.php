@@ -3,26 +3,31 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 require_once 'config/constants.php';
+require_once 'libraries/db.php';
 
-// Connecting to DB
-$conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
+//
+//// Connecting to DB
+//$conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
+//
+//// Handled case if connection failed
+//if ( ! $conn) {
+//    die("Connection failed: " . mysqli_connect_error());
+//}
+//$sql_get_sellers = "SELECT u.id,CONCAT(u.first_name,' ',u.middle_name,' ',u.last_name) as full_name,"
+//        . "u.image,u.gender,u.dob,u.bio,u.preferred_comm,u.mobile,ua.type,"
+//        . "CONCAT(ua.street,', ',ua.city,', ',st.name,', ',ua.zip) as address, l.email,"
+//        . "CONCAT(uao.street,', ',uao.city,', ',st.name,', ',uao.zip) as office_address "
+//        . "FROM `users` u "
+//        . "JOIN user_address ua ON u.id=ua.user_id AND ua.type =1 "
+//        . "LEFT JOIN user_address uao ON u.id=uao.user_id AND uao.type =2 "
+//        . "LEFT JOIN state_table st ON ua.state= st.id OR uao.state = st.id "
+//        . "JOIN `login` l ON u.id=l.user_id "
+//        . "WHERE u.type='S' "
+//        . "ORDER BY u.id ASC";
+//$sellers_list = mysqli_query($conn, $sql_get_sellers);
+$db = new dbOperation;
+$db->get_all_users(['u.type'=>'S'], ['u.id','ASC']);
 
-// Handled case if connection failed
-if ( ! $conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-$sql_get_sellers = "SELECT u.id,CONCAT(u.first_name,' ',u.middle_name,' ',u.last_name) as full_name,"
-        . "u.image,u.gender,u.dob,u.bio,u.preferred_comm,u.mobile,ua.type,"
-        . "CONCAT(ua.street,', ',ua.city,', ',st.name,', ',ua.zip) as address, l.email,"
-        . "CONCAT(uao.street,', ',uao.city,', ',st.name,', ',uao.zip) as office_address "
-        . "FROM `users` u "
-        . "JOIN user_address ua ON u.id=ua.user_id AND ua.type =1 "
-        . "LEFT JOIN user_address uao ON u.id=uao.user_id AND uao.type =2 "
-        . "LEFT JOIN state_table st ON ua.state= st.id OR uao.state = st.id "
-        . "JOIN `login` l ON u.id=l.user_id "
-        . "WHERE u.type='S' "
-        . "ORDER BY u.id ASC";
-$sellers_list = mysqli_query($conn, $sql_get_sellers);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,9 +46,9 @@ $sellers_list = mysqli_query($conn, $sql_get_sellers);
         <div class="container">
             <h2>Top Sellers</h2>
 
-            <?php if (mysqli_num_rows($sellers_list) > 0) { ?>
+            <?php if ($db->num_rows_result > 0) { ?>
                 <div class="panel-group" id="accordion">
-                    <?php while ($seller = mysqli_fetch_assoc($sellers_list)) { ?>
+                    <?php while ($seller = $db->fetch()) { ?>
 
                         <div class="panel panel-default">
                             <div class="panel-heading">

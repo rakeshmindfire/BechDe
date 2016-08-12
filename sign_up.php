@@ -6,24 +6,27 @@ error_reporting(E_ALL);
 require_once 'helper/states.php';
 require_once 'helper/validation.php';
 require_once 'config/constants.php';
+require_once 'libraries/db.php';
 $msg = '';
+//
+//$conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
+//
+//if ( ! $conn) {
+//    die("Connection failed: " . mysqli_connect_error());
+//}
+//
+//$sql_get_states = "SELECT `id`, `name` FROM `state_table`";
+//
+//if ( ! ($state_query_result = mysqli_query($conn, $sql_get_states))) {
+//    echo 'err1-->' . mysqli_error($conn);
+//    header('Location: error.php');
+//}
+//
+//while ($state_row = mysqli_fetch_assoc($state_query_result)) {
+//    $state_list[] = $state_row;
+//}
 
-$conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
 
-if ( ! $conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-
-$sql_get_states = "SELECT `id`, `name` FROM `state_table`";
-
-if ( ! ($state_query_result = mysqli_query($conn, $sql_get_states))) {
-    echo 'err1-->' . mysqli_error($conn);
-    header('Location: error.php');
-}
-
-while ($state_row = mysqli_fetch_assoc($state_query_result)) {
-    $state_list[] = $state_row;
-}
 
 if ( ! empty($_POST)) {
     $pic_name = 'profile_pic';
