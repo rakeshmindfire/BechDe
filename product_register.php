@@ -192,7 +192,6 @@ if ( ! empty($_POST)) {
                       <div class="modal-dialog">
 
                         <!-- Modal content-->
-                        
                         <div class="modal-body" >
                             <img src="<?php 
                             echo empty ( $row_to_update['image']) || !file_exists ( PRODUCT_PIC.$row_to_update['image']) 

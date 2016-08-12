@@ -96,7 +96,7 @@ function validate_data($data) {
             case 'ofc_addrstate':
             case 'ofc_addrstreet':
             case 'description':
-                $null_allowed = TRUE;   //no break
+                $null_allowed = TRUE;   
             case 'res_addrstate':
             case 'res_addrstreet':
             case 'user_type':
@@ -245,11 +245,11 @@ function validate_using($value, $null_allowed, $type) {
  */
 function santizing($data) {
 
-    foreach ($data as $key => $postvalues) {
+    foreach ($data as $key => $post_values) {
         
         // Remove white spaces and special characters from string
-        if (is_string($postvalues)) {
-            $data[$key] = filter_var(trim($postvalues), FILTER_SANITIZE_STRING);
+        if (is_string($post_values)) {
+            $data[$key] = filter_var(trim($post_values), FILTER_SANITIZE_STRING);
         }
     }
 

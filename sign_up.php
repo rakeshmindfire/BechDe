@@ -25,7 +25,6 @@ while ($state_row = mysqli_fetch_assoc($state_query_result)) {
     $state_list[] = $state_row;
 }
 
-
 if ( ! empty($_POST)) {
     $pic_name = 'profile_pic';
 
@@ -69,33 +68,15 @@ if ( ! empty($_POST)) {
         }
 
         $sql_addr = "INSERT INTO `user_address` (`user_id`, `type`, `street`, `city`, `state`, `zip`"
-                . ",`created_date`) VALUES ('". $user_id. "', '1"
-                . "', '"
-                . $_POST['res_addrstreet']
-                . "', '"
-                . $_POST['res_addrcity']
-                . "', '"
-                . $_POST['res_addrstate']
-                . "', '"
-                . $_POST['res_addrzip']
+                . ",`created_date`) VALUES ('". $user_id. "', '1', '" . $_POST['res_addrstreet']
+                . "', '". $_POST['res_addrcity']. "', '". $_POST['res_addrstate']. "', '". $_POST['res_addrzip']
                 . "', NOW())";
 
         if ( ! empty($_POST['ofc_addrstreet']) || $_POST['ofc_addrstate'] === '0' ||
                 ! empty($_POST['ofc_addrcity']) || ! empty($_POST['ofc_addrstate'])) {
 
-            $sql_addr.= ",('"
-                    . $user_id
-                    . "', '"
-                    . "2"
-                    . "', '"
-                    . $_POST['ofc_addrstreet']
-                    . "', '"
-                    . $_POST['ofc_addrcity']
-                    . "', '"
-                    . $_POST['ofc_addrstate']
-                    . "', '"
-                    . $_POST['ofc_addrzip']
-                    . "', NOW())";
+            $sql_addr.= ",('". $user_id. "', '2', '". $_POST['ofc_addrstreet']. "', '". $_POST['ofc_addrcity']
+                    . "', '". $_POST['ofc_addrstate']. "', '". $_POST['ofc_addrzip']. "', NOW())";
         }
 
         if ( ! mysqli_query($conn, $sql_addr)) {
@@ -153,21 +134,27 @@ mysqli_close($conn);
                 <form class="form-horizontal" role="form" method="post" enctype="multipart/form-data" 
                       action="sign_up.php">
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="user_name">Username <span class="color-remove">*</span></label>
+                        <label class="control-label col-sm-2" for="user_name">Username <span class="color-remove">*</span>
+                        </label>
                         <div class="col-sm-2">
                             <input type="text" class="form-control" id="user_name" placeholder="bob234"
                                    name="user_name" value="<?php echo (isset($_POST['user_name'])) ? $_POST['user_name'] : ''; ?>">
                         </div>
-                        <div class="col-sm-4 error-msg"><?php echo isset($error['user_name']) ? $error['user_name'] : ''; ?> </div>
+                        <div class="col-sm-4 error-msg">
+                            <?php echo isset($error['user_name']) ? $error['user_name'] : ''; ?> 
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="first_name">First name <span class="color-remove">*</span></label>
+                        <label class="control-label col-sm-2" for="first_name">First name <span class="color-remove">*</span>
+                        </label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="first_name" placeholder="Bob"
                                    name="first_name" value="<?php echo (isset($_POST['first_name'])) ? $_POST['first_name'] : ''; ?>">
                         </div>
-                        <div class="col-sm-4 error-msg"><?php echo isset($error['first_name']) ? $error['first_name'] : ''; ?> </div>
+                        <div class="col-sm-4 error-msg">
+                            <?php echo isset($error['first_name']) ? $error['first_name'] : ''; ?> 
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -176,16 +163,21 @@ mysqli_close($conn);
                             <input type="text" class="form-control" id="middle_name" placeholder="James"
                                    name="middle_name" value="<?php echo isset($_POST['middle_name']) ? $_POST['middle_name'] : ''; ?>">
                         </div>
-                        <div class="col-sm-4 error-msg"><?php echo isset($error['middle_name']) ? $error['middle_name'] : ''; ?> </div>
+                        <div class="col-sm-4 error-msg">
+                            <?php echo isset($error['middle_name']) ? $error['middle_name'] : ''; ?> 
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="last_name">Last name <span class="color-remove">*</span></label>
+                        <label class="control-label col-sm-2" for="last_name">Last name <span class="color-remove">*</span>
+                        </label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="last_name" placeholder="Martin"
                                    name="last_name" value="<?php echo isset($_POST['last_name']) ? $_POST['last_name'] : ''; ?>">
                         </div>
-                        <div class="col-sm-4 error-msg"><?php echo isset($error['last_name']) ? $error['last_name'] : ''; ?> </div>
+                        <div class="col-sm-4 error-msg">
+                            <?php echo isset($error['last_name']) ? $error['last_name'] : ''; ?> 
+                        </div>
                     </div>      
 
                     <div class="form-group">
@@ -194,34 +186,46 @@ mysqli_close($conn);
                             <input type="email" class="form-control" id="email" placeholder="bobjmartin@example.com"
                                    name="email" value="<?php echo isset($_POST['email']) ? $_POST['email'] : ''; ?>">
                         </div>
-                        <div class="col-sm-4 error-msg"><?php echo isset($error['email']) ? $error['email'] : ''; ?> </div>
+                        <div class="col-sm-4 error-msg">
+                            <?php echo isset($error['email']) ? $error['email'] : ''; ?> 
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="pwd">Password <span class="color-remove">*</span></label>
+                        <label class="control-label col-sm-2" for="pwd">Password <span class="color-remove">*</span>
+                        </label>
                         <div class="col-sm-3">
                             <input type="password" class="form-control" id="pwd" placeholder="password"
                                    name="password" value="<?php echo isset($_POST['password']) ? $_POST['password'] : ''; ?>">
                         </div>
-                        <div class="col-sm-4 error-msg"><?php echo isset($error['password']) ? $error['password'] : ''; ?> </div>
+                        <div class="col-sm-4 error-msg">
+                            <?php echo isset($error['password']) ? $error['password'] : ''; ?> 
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="confirmpwd">Confirm Password <span class="color-remove">*</span></label>
+                        <label class="control-label col-sm-2" for="confirmpwd">Confirm Password <span class="color-remove">*</span>
+                        </label>
                         <div class="col-sm-3">
-                            <input type="password" class="form-control" id="confirm_password" placeholder="Confirm password"
-                                   name="confirm_password" value="<?php echo isset($_POST['confirm_password']) ? $_POST['confirm_password'] : ''; ?>">
+                            <input type="password" class="form-control" id="confirm_password" 
+                                   placeholder="Confirm password" name="confirm_password"
+                                   value="<?php echo isset($_POST['confirm_password']) ? $_POST['confirm_password'] : ''; ?>">
                         </div>
-                        <div class="col-sm-4 error-msg"><?php echo isset($error['confirm_password']) ? $error['confirm_password'] : ''; ?> </div>
+                        <div class="col-sm-4 error-msg">
+                            <?php echo isset($error['confirm_password']) ? $error['confirm_password'] : ''; ?>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="contact_num">Contact Number <span class="color-remove">*</span></label>
+                        <label class="control-label col-sm-2" for="contact_num">Contact Number <span class="color-remove">*</span>
+                        </label>
                         <div class="col-sm-3">
-                            <input type="text" class="form-control" id="contact_num" placeholder="9213321345"
-                                   name="contact_num" value="<?php echo isset($_POST['contact_num']) ? $_POST['contact_num'] : ''; ?>">
+                            <input type="text" class="form-control" id="contact_num" placeholder="9213321345" name="contact_num"
+                                   value="<?php echo isset($_POST['contact_num']) ? $_POST['contact_num'] : ''; ?>">
                         </div>
-                        <div class="col-sm-4 error-msg"><?php echo isset($error['contact_num']) ? $error['contact_num'] : ''; ?> </div>
+                        <div class="col-sm-4 error-msg">
+                            <?php echo isset($error['contact_num']) ? $error['contact_num'] : ''; ?> 
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -237,21 +241,24 @@ mysqli_close($conn);
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="dob">Date of birth <span class="color-remove">*</span></label>
+                        <label class="control-label col-sm-2" for="dob">Date of birth <span class="color-remove">*</span>
+                        </label>
                         <div class="col-sm-2">
                             <input type="date" class="form-control" id="dob" name="dob"  
                                    value="<?php echo isset($_POST['dob']) ? $_POST['dob'] : '1993-02-01'; ?>">
                         </div>
-                        <div class="col-sm-5 error-msg"><?php echo isset($error['dob']) ? $error['dob'] : ''; ?> </div>
+                        <div class="col-sm-5 error-msg">
+                            <?php echo isset($error['dob']) ? $error['dob'] : ''; ?> 
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label class="control-label col-sm-2" >User Type &nbsp;</label>
                         <div class="col-sm-10">
                             <label class="radio-inline"><input type="radio" name="user_type" value="B"
-                                                               <?php echo isset($_POST['user_type']) && ($_POST['user_type'] === 'S') ? 'checked="false"' : 'checked="true"' ?>> Buyer</label>
+                                <?php echo isset($_POST['user_type']) && ($_POST['user_type'] === 'S') ? 'checked="false"' : 'checked="true"' ?>> Buyer</label>
                             <label class="radio-inline"><input type="radio" name="user_type" value="S"
-                                                               <?php echo isset($_POST['user_type']) && ($_POST['user_type'] === 'S') ? 'checked="true"' : '' ?>> Seller</label>
+                                 <?php echo isset($_POST['user_type']) && ($_POST['user_type'] === 'S') ? 'checked="true"' : '' ?>> Seller</label>
                         </div>
                     </div>
 
@@ -347,13 +354,13 @@ mysqli_close($conn);
                         <label class="control-label col-sm-2" >Preferred Communication Medium &nbsp;</label>
                         <div class="col-sm-10 give_padding" >
                             <label class="checkbox-inline"><input type="checkbox" name="pref_comm[]" value="email"
-                                                                  <?php echo isset($_POST['pref_comm']) && in_array("email", $_POST['pref_comm']) ? ' checked' : ''; ?> > Email</label>
+                                <?php echo isset($_POST['pref_comm']) && in_array("email", $_POST['pref_comm']) ? ' checked' : ''; ?> > Email</label>
                             <label class="checkbox-inline"><input type="checkbox" name="pref_comm[]" value="sms"
-                                                                  <?php echo isset($_POST['pref_comm']) && in_array("sms", $_POST['pref_comm']) ? ' checked' : ''; ?>> SMS</label>
+                                <?php echo isset($_POST['pref_comm']) && in_array("sms", $_POST['pref_comm']) ? ' checked' : ''; ?>> SMS</label>
                             <label class="checkbox-inline"><input type="checkbox" name="pref_comm[]" value="call"
-                                                                  <?php echo isset($_POST['pref_comm']) && in_array("call", $_POST['pref_comm']) ? ' checked' : ''; ?>> Call</label>
+                                <?php echo isset($_POST['pref_comm']) && in_array("call", $_POST['pref_comm']) ? ' checked' : ''; ?>> Call</label>
                             <label class="checkbox-inline"><input type="checkbox" name="pref_comm[]" value="any"
-                                                                  <?php echo isset($_POST['pref_comm']) && in_array("any", $_POST['pref_comm']) ? ' checked' : ''; ?>> ANY</label>            
+                                <?php echo isset($_POST['pref_comm']) && in_array("any", $_POST['pref_comm']) ? ' checked' : ''; ?>> ANY</label>            
                         </div>
                     </div>  
 
