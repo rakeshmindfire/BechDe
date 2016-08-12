@@ -35,7 +35,7 @@ if ( ! empty($_POST)) {
     // Trim all whitespaces from string values
     $_POST = santizing($_POST);
     $error = validate_data($_POST);     
-    $error[$pic_name]= ! empty($_FILES) && $_FILES[$pic_name]['error'] !=4 ? 
+    $error[$pic_name] = ! empty($_FILES) && $_FILES[$pic_name]['error'] !=4 ? 
         image_validation($pic_name) : ($is_update ? '': 'Product image required.'); 
 
     $fields_validated = TRUE;

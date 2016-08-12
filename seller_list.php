@@ -8,7 +8,7 @@ require_once 'config/constants.php';
 $conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
 
 // Handled case if connection failed
-if (!$conn) {
+if ( ! $conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 $sql_get_sellers = "SELECT u.id,CONCAT(u.first_name,' ',u.middle_name,' ',u.last_name) as full_name,"
