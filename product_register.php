@@ -11,28 +11,13 @@ require_once 'libraries/db.php';
 $msg = '';
 $is_update = FALSE;
 
-//// Connecting to DB
-//$conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
-//
-//// Handled case if connection failed
-//if ( ! $conn) {
-//    die("Connection failed: " . mysqli_connect_error());
-//}
 $db = new dbOperation;
 
 if(isset($_GET['update_id']) ) {
     $is_update = TRUE;
     $db->select('products_list', ['category', 'name', 'amount', 'description', 'image'],['id'=>$_GET['update_id']]);
     $row_to_update = $db->fetch();
-//    $sql_get_values_to_update = "SELECT `category`,`name`,`amount`,`description`,`image` FROM `products_list` "
-//        . "WHERE `products_list`.`id` ='". $_GET['update_id']."'";
-//    $row_to_update = mysqli_fetch_assoc(mysqli_query($conn, $sql_get_values_to_update));
 } 
-
-$db->select('products_category');
-
-//$sql_get_category = "SELECT `id`, `name` FROM `products_category`";
-//$categories = mysqli_query($conn, $sql_get_category);
 
 if ( ! empty($_POST)) {
 
@@ -58,39 +43,15 @@ if ( ! empty($_POST)) {
         $data = ['category'=>$_POST['category'], 'user_id'=> '1', 'name'=> $_POST['product_name'],
                     'amount'=>$_POST['product_price'], 'description'=>$_POST['description'] ];
         if(!$is_update) {
-//            $data = ['category'=>$_POST['category'], 'user_id'=> '1', 'name'=> $_POST['product_name'],
-//                    'amount'=>$_POST['product_price'], 'description'=>$_POST['description'] ];
             $product_id = $db->insert_or_update(1, 'products_list', $data);
-            
-//            $sql = "INSERT INTO `products_list` ( `category`,`user_id`, `name`, `amount`, "
-//                    . "`description`, `created_date`) VALUES "
-//                    . "( '" . $_POST['category'] . "','1','" . $_POST['product_name']
-//                    . "', '" . $_POST['product_price'] . "', '" . $_POST['description']
-//                    . "', NOW())";
-
         } else {
             $db->insert_or_update(2,'products_list',$data,['id'=>$_GET['update_id']]);
             $product_id = $_GET['update_id'];
-//            $sql = "UPDATE `products_list` SET `category` = '". $_POST['category']
-//                    . "', `name` = '" . $_POST['product_name'] 
-//                    . "', `amount` = '". $_POST['product_price']
-//                    . "', `description` = '". $_POST['description']
-//                     . "' WHERE `products_list`.`id` = ". $_GET['update_id'];
         }
-//        if ( ! mysqli_query($conn, $sql)) {
-//               $msg= "New record in PRODUCT_LIST FAILURE";
-//               echo 'err1-->'. mysqli_error($conn);
-//               header('Location: error.php');
-//              // exit;
-//        }
-
-//        $product_id = $is_update ? $_GET['update_id'] : mysqli_insert_id($conn);
         
         if($is_update && $_FILES[$pic_name]['size'] != 0) {
             $db->select('products_list', ['image'],['id'=>$_GET['update_id']]);
              $img_to_update = $db->fetch();
-//           $sql_get_image = "SELECT `image` from `products_list` WHERE `id`=".$_GET['update_id'];
-//           $img_to_update = mysqli_fetch_assoc(mysqli_query($conn, $sql_get_image));
            
            if( ! is_null($img_to_update['image']) && file_exists(PRODUCT_PIC.$img_to_update['image'])) {
                unlink(PRODUCT_PIC.$img_to_update['image']);
@@ -106,24 +67,12 @@ if ( ! empty($_POST)) {
             if (move_uploaded_file($_FILES[$pic_name]['tmp_name'], $file_name)) {
                 
                 $db->insert_or_update(2, 'products_list', ['image'=> basename($file_name)], ['id'=>$product_id]);
-//                $sql_put_image = "UPDATE `products_list` SET `image`='"
-//                        . basename($file_name)
-//                        ."' WHERE `id`='".$product_id."'";
-//
-//                if ( ! mysqli_query($conn, $sql_put_image)) {
-//                    $msg= "New record in PRODUCTS_LIST (image) FAILURE";
-//                    echo 'err1-->'. mysqli_error($conn);
-//                    header('Location: error.php');
-//                }
             }
         }
         $message= $is_update ?  2: 1;
         header("Location: product_list.php?success=$message");  
     }
 }
-
- mysqli_close($conn);
-
 ?>
 
 <!DOCTYPE html>
@@ -155,6 +104,7 @@ if ( ! empty($_POST)) {
                 <select class="form-control " id="category" name="category" >  
                     <option value="" >Select Category</option>
                         <?php
+                        $db->select('products_category');
                         while($row = $db->fetch()) {                    
                                 echo '<option value="'.$row['id'].'" ';
                                 echo  ($is_update && $row['id'] === $row_to_update['category'])

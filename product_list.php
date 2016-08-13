@@ -7,24 +7,9 @@ require_once 'libraries/db.php';
 
 
 $db = new dbOperation;
-// Connecting to DB
-//$conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
-//
-//// Handled case if connection failed
-//if ( ! $conn) {
-//    die("Connection failed: " . mysqli_connect_error());
-//}
 
 if (isset($_GET['delete_id'])) {
-//    $sql_get_image = "SELECT `image` FROM `products_list`"
-//            . " WHERE `products_list`.`id` ='" . $_GET['delete_id'] . "'";
-//    $image_to_delete = mysqli_query($conn, $sql_get_image);
-//    
-//    if ( ! empty(mysqli_num_rows($image_to_delete))) {
-//        $image_to_delete = mysqli_fetch_assoc($image_to_delete);
-//        unlink(PRODUCT_PIC . $image_to_delete['image']);
-//    }
-//    
+  
     $db->select('products_list', ['image'],['id'=>$_GET['delete_id']]);
     $image_to_delete = $db->fetch();         
     
@@ -32,17 +17,7 @@ if (isset($_GET['delete_id'])) {
         unlink(PRODUCT_PIC.$image_to_delete['image']);
     }
     $db->delete('products_list', ['id'=>$_GET['delete_id']]);
-//    
-//    $sql_delete = "DELETE FROM `products_list` WHERE `products_list`.`id` ='" . $_GET['delete_id'] . "'";
-//    mysqli_query($conn, $sql_delete);
 }
-
-//$sql_get_products = "SELECT pl.id,pc.name as category_name,pl.image,pl.name as product_name,pl.amount,"
-//        . "pl.description,pl.created_date"
-//        . " FROM products_list pl JOIN products_category pc ON pl.category=pc.id "
-//        . "ORDER BY pl.created_date DESC";
-//
-//$products = mysqli_query($conn, $sql_get_products);
 $db->select('products_list pl JOIN products_category pc ON pl.category=pc.id' ,
     ['pl.id', 'pc.name as category_name', 'pl.image', 'pl.name as product_name', 'pl.amount', 'pl.description', 'pl.created_date'],
     NULL, ['pl.created_date', 'DESC'])
