@@ -134,7 +134,7 @@ class dbOperation {
         echo $this->query;      
         $this->query_result = mysqli_query($this->conn, $this->query);
         $this->validate_result('insert_or_update '.$query_type);
-        return mysqli_insert_id($this->conn);
+        return $query_type == 1 ? mysqli_insert_id($this->conn): FALSE;
     }
     
     public function delete($table_name, $where_clause=[]) {
@@ -168,7 +168,7 @@ class dbOperation {
 ?>
 
    <?php 
-   $db = new dbOperation();
+//   $db = new dbOperation();
 //   $data = ['category'=>'1', 'user_id'=> '1', 'name'=> '123',
 //                    'amount'=>'123', 'description'=>'123'];
 //    $db->insert_or_update(1, 'products_list', $data);

@@ -9,7 +9,7 @@ require_once 'config/constants.php';
 require_once 'libraries/db.php';
 $msg = '';
 //
-//$conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
+$conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
 //
 //if ( ! $conn) {
 //    die("Connection failed: " . mysqli_connect_error());
@@ -25,8 +25,12 @@ $msg = '';
 //while ($state_row = mysqli_fetch_assoc($state_query_result)) {
 //    $state_list[] = $state_row;
 //}
+$db = new dbOperation;
+$db->select('state_table');
 
-
+while ($state_row = $db->fetch()) {
+    $state_list[] = $state_row;
+}
 
 if ( ! empty($_POST)) {
     $pic_name = 'profile_pic';
@@ -48,44 +52,59 @@ if ( ! empty($_POST)) {
 
     if (empty($error[$pic_name]) && $fields_validated) {
 
-        $sql = "INSERT INTO `users` ( `first_name`, `middle_name`, `last_name`, `gender`, `dob`,"
-                . " `type`, `bio`, `preferred_comm`, `mobile`, `created_date`) VALUES ('"
-                . $_POST['first_name'] . "','". $_POST['middle_name'] . "','". $_POST['last_name'] 
-                . "','". $_POST['gender'] . "','". $_POST['dob'] . "','". $_POST['user_type'] 
-                . "','". $_POST['comment'] . "','". implode(',', $_POST['pref_comm']) . "','"
-                . $_POST['contact_num'] . "', NOW())";
+//        $sql = "INSERT INTO `users` ( `first_name`, `middle_name`, `last_name`, `gender`, `dob`,"
+//                . " `type`, `bio`, `preferred_comm`, `mobile`, `created_date`) VALUES ('"
+//                . $_POST['first_name'] . "','". $_POST['middle_name'] . "','". $_POST['last_name'] 
+//                . "','". $_POST['gender'] . "','". $_POST['dob'] . "','". $_POST['user_type'] 
+//                . "','". $_POST['comment'] . "','". implode(',', $_POST['pref_comm']) . "','"
+//                . $_POST['contact_num'] . "', NOW())";
+//
+//        if ( ! mysqli_query($conn, $sql)) {
+//            $msg = "New record in USERS FAILURE";
+//            echo 'err1-->' . mysqli_error($conn);
+//            header('Location: error.php');
+//        }
+        $data =['first_name'=> $_POST['first_name'], 'middle_name'=> $_POST['middle_name'],
+            'last_name'=> $_POST['last_name'], 'gender'=> $_POST['gender'], 'dob'=> $_POST['dob'],
+            'type'=> $_POST['user_type'],'bio'=> $_POST['comment'],'preferred_comm'=> implode(',', $_POST['pref_comm']),
+            'mobile'=> $_POST['contact_num']];
+        $user_id = $db->insert_or_update(1, 'users', $data);
+//
+//        $user_id = mysqli_insert_id($conn);
+//
+//        $sql_login = "INSERT INTO `login`(`email`, `password`, `user_id`, `created_date`) VALUES ('"
+//                . $_POST['email']. "','". $_POST['password']. "','". $user_id. "', NOW())";
+//
+//        if ( ! mysqli_query($conn, $sql_login)) {
+//            $msg = "New record in LOGIN FAILURE";
+//            echo 'err2-->' . mysqli_error($conn);
+//        }
+        $data_login = ['email'=> $_POST['email'],'password'=> $_POST['password'], 'user_id'=> $user_id];
+        $db->insert_or_update(1, 'login', $data_login);
 
-        if ( ! mysqli_query($conn, $sql)) {
-            $msg = "New record in USERS FAILURE";
-            echo 'err1-->' . mysqli_error($conn);
-            header('Location: error.php');
-        }
+//        $sql_addr = "INSERT INTO `user_address` (`user_id`, `type`, `street`, `city`, `state`, `zip`"
+//                . ",`created_date`) VALUES ('". $user_id. "', '1', '" . $_POST['res_addrstreet']
+//                . "', '". $_POST['res_addrcity']. "', '". $_POST['res_addrstate']. "', '". $_POST['res_addrzip']
+//                . "', NOW())";
 
-        $user_id = mysqli_insert_id($conn);
-        $sql_login = "INSERT INTO `login`(`email`, `password`, `user_id`, `created_date`) VALUES ('"
-                . $_POST['email']. "','". $_POST['password']. "','". $user_id. "', NOW())";
-
-        if ( ! mysqli_query($conn, $sql_login)) {
-            $msg = "New record in LOGIN FAILURE";
-            echo 'err2-->' . mysqli_error($conn);
-        }
-
-        $sql_addr = "INSERT INTO `user_address` (`user_id`, `type`, `street`, `city`, `state`, `zip`"
-                . ",`created_date`) VALUES ('". $user_id. "', '1', '" . $_POST['res_addrstreet']
-                . "', '". $_POST['res_addrcity']. "', '". $_POST['res_addrstate']. "', '". $_POST['res_addrzip']
-                . "', NOW())";
-
+         $data_res_addr = ['user_id'=> $user_id, 'type'=> '1', 'street'=> $_POST['res_addrstreet'],
+            'city'=> $_POST['res_addrcity'], 'state'=> $_POST['res_addrstate'], 'zip'=> $_POST['res_addrzip']]; 
+         $db->insert_or_update(1, 'user_address', $data_res_addr);
+        
         if ( ! empty($_POST['ofc_addrstreet']) || $_POST['ofc_addrstate'] === '0' ||
                 ! empty($_POST['ofc_addrcity']) || ! empty($_POST['ofc_addrstate'])) {
-
-            $sql_addr.= ",('". $user_id. "', '2', '". $_POST['ofc_addrstreet']. "', '". $_POST['ofc_addrcity']
-                    . "', '". $_POST['ofc_addrstate']. "', '". $_POST['ofc_addrzip']. "', NOW())";
+//
+//            $sql_addr.= ",('". $user_id. "', '2', '". $_POST['ofc_addrstreet']. "', '". $_POST['ofc_addrcity']
+//                    . "', '". $_POST['ofc_addrstate']. "', '". $_POST['ofc_addrzip']. "', NOW())";
+            $data_ofc_addr = ['user_id'=> $user_id, 'type'=> '2', 'street'=> $_POST['ofc_addrstreet'],
+                'city'=> $_POST['ofc_addrcity'], 'state'=> $_POST['ofc_addrstate'], 'zip'=> $_POST['ofc_addrzip']];
+            $db->insert_or_update(1, 'user_address', $data_ofc_addr);
         }
-
-        if ( ! mysqli_query($conn, $sql_addr)) {
-            $msg = "New record in USER_ADDR FAILURE";
-            echo 'err-->' . mysqli_error($conn);
-        }
+//
+//        if ( ! mysqli_query($conn, $sql_addr)) {
+//            $msg = "New record in USER_ADDR FAILURE";
+//            echo 'err-->' . mysqli_error($conn);
+//        }
 
         if ($_FILES[$pic_name]['size'] != 0) {
 
@@ -94,15 +113,16 @@ if ( ! empty($_POST)) {
 
             if (move_uploaded_file($_FILES[$pic_name]['tmp_name'], $file_name)) {
 
-                $sql_putimage = "UPDATE `users` SET `image`='"
-                        . basename($file_name)
-                        . "' WHERE `id`='" . $user_id . "'";
-
-                if ( ! mysqli_query($conn, $sql_putimage)) {
-                    $msg = "New record in USERS (image) FAILURE";
-                    echo 'err1-->' . mysqli_error($conn);
-                    header('Location: error.php');
-                }
+//                $sql_putimage = "UPDATE `users` SET `image`='"
+//                        . basename($file_name)
+//                        . "' WHERE `id`='" . $user_id . "'";
+//
+//                if ( ! mysqli_query($conn, $sql_putimage)) {
+//                    $msg = "New record in USERS (image) FAILURE";
+//                    echo 'err1-->' . mysqli_error($conn);
+//                    header('Location: error.php');
+//            }
+            $db->insert_or_update(2, 'users', ['image'=> basename($file_name)], ['id'=>$user_id]);              
             }
         }
         header('Location: sign_up.php?success=1');
