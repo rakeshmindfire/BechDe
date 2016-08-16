@@ -164,6 +164,7 @@ function validate_using($value, $null_allowed, $type) {
     if ($testpattern) {
 
         if ( ! empty($value)) {
+            
             switch ($type) {
                 case 'alphabet':
                     if ( ! preg_match('/^[A-Za-z]+$/', $value)) {
@@ -250,5 +251,4 @@ function santizing($data) {
 
     return $data;
 }
-
 ?>

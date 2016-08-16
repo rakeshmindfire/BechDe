@@ -128,11 +128,14 @@ class dbOperation {
      * @return integer when INSERT / void when UPDATE  
      */
     public function insert_or_update($query_type, $table_name, $data, $where_clause=[]) {
+        
         switch($query_type) {
+            
             case 1:
                 $this->query = 'INSERT INTO '.$table_name.' ('.implode(',',array_keys($data)).',created_date)'
                         . ' VALUES (\''.implode('\',\'',array_values($data)).'\',NOW())';
                 break;
+            
             case 2:
                 $this->query = 'UPDATE '.$table_name.' SET' ;
          
@@ -143,6 +146,9 @@ class dbOperation {
                 $this->query .= ' WHERE '.implode(array_keys($where_clause)).'= \''
                     .implode(array_values($where_clause)) . '\'';
                 break;
+            
+            default: 
+                $this->log_db_error('Unknown argument in dbOperation::insert_or_update()');
         }   
         $this->query_result = mysqli_query($this->conn, $this->query);
         $this->validate_result('insert_or_update '.$query_type);
@@ -175,7 +181,6 @@ class dbOperation {
         mysqli_close($this->conn);
     }
     
-    
     /**
      * To check if an operation is successfully executed
      *
@@ -201,7 +206,5 @@ class dbOperation {
         echo 'error type '.$type;
         exit;
     }
-    
-    
 }
 ?>
