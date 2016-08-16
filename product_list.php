@@ -5,7 +5,6 @@ error_reporting(E_ALL);
 require_once 'config/constants.php';
 require_once 'libraries/db.php';
 
-
 $db = new dbOperation;
 
 if (isset($_GET['delete_id'])) {
@@ -51,6 +50,10 @@ if (isset($_GET['success'])) {
         case 3:
             echo "Product deleted successfully!";
             break;
+        
+        default:
+            echo 'unknown error';
+            header('Location: error.php');
     }
 }
 ?>

@@ -1,4 +1,13 @@
 <?php
+/**
+ * Constants declaration for QuickSeller.com
+ *
+ * @category   Config
+ * @package    QuickSeller
+ * @author     Rakesh Ranjan Das  <rakesh.das@mindfire.com>
+ * @license    QuickSeller
+ * @link       void
+ */
 
     // Database Constants
     define('SERVERNAME', 'localhost');

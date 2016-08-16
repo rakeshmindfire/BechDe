@@ -2,7 +2,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-ini_set('upload_max_filesize', '2M');
+
 // Include the constant file
 require_once 'helper/validation.php';
 require_once 'config/constants.php';
@@ -60,7 +60,6 @@ if ( ! empty($_POST)) {
 
         if( ! empty($_FILES[$pic_name]))
         {
-
             $extension=(pathinfo(basename($_FILES[$pic_name]['name']))['extension']);
             $file_name = PRODUCT_PIC . $product_id .'_'. time() . '.' . $extension;
             
@@ -70,7 +69,7 @@ if ( ! empty($_POST)) {
             }
         }
         $message= $is_update ?  2: 1;
-        header("Location: product_list.php?success=$message");  
+        header('Location: product_list.php?success=$message');  
     }
 }
 ?>

@@ -13,7 +13,6 @@ function image_validation($pic) {
     $err = '';
 
     if ($_FILES[$pic]['error'] === 0) {
-
         $extension = pathinfo(basename($_FILES[$pic]['name']))['extension'];
         $check = getimagesize($_FILES[$pic]['tmp_name']);
 
@@ -124,14 +123,10 @@ function validate_data($data) {
  * @return string
  */
 function existing_email($data) {
-    $conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
-
-    if ( ! $conn) {
-        die("Connection failed: " . mysqli_connect_error());
-    }
-    $check_email = mysqli_query($conn, "SELECT * FROM `login` WHERE `email`= '" . $data . "'");
-    $err = empty(mysqli_num_rows($check_email)) ? '' : 'Email already exists';
-    mysqli_close($conn);
+    $db = new dbOperation();
+    $db->select('login', ['email'], ['email'=>$data]);
+    $err = empty($db->num_rows_result) ? '': 'Email already exists';
+    
     return $err;
 }
 
