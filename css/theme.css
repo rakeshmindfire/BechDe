@@ -609,7 +609,8 @@ section#contact .text-danger {
   color: #e74c3c;
 }
 footer {
-  padding: 25px 0;
+  color: white;
+  background-color: black;
   text-align: center;
 }
 footer span.copyright {

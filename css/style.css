@@ -1,19 +1,78 @@
 
 .navbar-custom .navbar-brand {
-  color: #fed136;
-   font-family: 'Sansita One', cursive;
+    color: #fed136;
+    font-family: 'Sansita One', cursive;
 }
 
-
-.needspacing{
+.need-spacing{
     margin-top:10px;
 }
 
-#mainNav{
-    background-color: black;
- 
+#main-nav {
+    background-color: black; 
 }
 
-.navbar-brand{
+.navbar-brand {
     font-size: 28px;
+}
+
+give-padding {
+    padding-top: 2%;
+}
+
+table img {
+    width: 100px;
+    height: 100px;
+    cursor: pointer;
+}
+
+td, th {
+    text-align: center;
+}
+
+section {
+    padding: 0 0 0 0 !important; 
+    height: auto !important;
+    min-height: 100%;
+}
+
+.color-edit {
+    color:blue;
+}
+
+.color-remove, .error-msg {
+    color:red;
+}
+
+.modal-body {
+    text-align: center;
+}
+
+.confirmation {
+    padding-bottom: 50px;
+    padding-left: 40px;
+    color: #3c763d;
+    font-size: medium;
+}
+
+.margin-top120 {
+    margin-top: 120px;
+}
+
+html, body {
+    height: 100%;
+}
+
+.container {
+    height: auto !important;
+    min-height: 100%;
+}
+
+label {
+    font-size: 13px;
+}
+
+.img-thumbnail {
+    width: 500px;
+    height: 500px; 
 }
