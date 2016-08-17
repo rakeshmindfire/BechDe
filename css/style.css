@@ -76,3 +76,8 @@ label {
     width: 500px;
     height: 500px; 
 }
+
+.nav-name {
+     color: #a6e1ec;
+     text-align: right;
+}

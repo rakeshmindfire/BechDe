@@ -1,6 +1,5 @@
 <?php
-
-require_once 'config/constants.php';
+require_once 'libraries/db.php';
 
 /**
  * To validate an image file
@@ -20,7 +19,7 @@ function image_validation($pic) {
             $err = 'File is not an image.';
         }
 
-        if (!in_array($extension, array('jpeg', 'jpg', 'png', 'gif'))) {
+        if ( ! in_array($extension, array('jpeg', 'jpg', 'png', 'gif'))) {
             $err = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
         }
         
@@ -125,9 +124,8 @@ function validate_data($data) {
 function existing_email($data) {
     $db = new dbOperation();
     $db->select('login', ['email'], ['email'=>$data]);
-    $err = empty($db->num_rows_result) ? '': 'Email already exists';
     
-    return $err;
+    return empty($db->num_rows_result) ? '': 'Email already exists';
 }
 
 /**
@@ -169,13 +167,13 @@ function validate_using($value, $null_allowed, $type) {
                 case 'alphabet':
                     if ( ! preg_match('/^[A-Za-z]+$/', $value)) {
                         $err = 'This field should contain only alphabets';
-                    };
+                    }
                     break;
 
                 case 'alnum':
                     if ( ! preg_match('/^[A-Za-z0-9]+$/', $value)) {
                         $err = 'This field should contain only alphabets and numeric characters';
-                    };
+                    }
                     break;
 
                 case 'email':
@@ -183,27 +181,25 @@ function validate_using($value, $null_allowed, $type) {
 
                     if (filter_var($email, FILTER_VALIDATE_EMAIL) === FALSE) {
                         $err = "$email is not a valid email address";
-                    } else {
-                        $err = existing_email($value);
-                    }
+                    } 
                     break;
 
                 case 'mobile_num':
                     if ( ! preg_match('/^\d{10}$/', $value)) {
                         $err = 'This field should contain 10 numeric characters';
-                    };
+                    }
                     break;
 
                 case 'zip':
                     if ( ! preg_match('/^\d{6}$/', $value)) {
                         $err = 'This field should contain 6 numeric characters';
-                    };
+                    }
                     break;
 
                 case 'float':
                     if ( ! preg_match('/^(\d|\d*.\d*)$/', $value)) {
                         $err = 'This field should contain a number';
-                    };
+                    }
                     break;
 
                 case 'dob':
@@ -221,6 +217,7 @@ function validate_using($value, $null_allowed, $type) {
                     break;
 
                 case 'any':
+                default:
                     // Nothing required
                     break;
             }

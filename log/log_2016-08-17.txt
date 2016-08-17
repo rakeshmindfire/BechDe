@@ -1,0 +1,2 @@
+06:10:59pm error type: select
+06:13:03pm error type: db error select

@@ -1,17 +1,13 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
+// Include the constant files
 require_once 'helper/states.php';
 require_once 'helper/validation.php';
-require_once 'config/constants.php';
 require_once 'libraries/db.php';
-$msg = '';
 
 $db = new dbOperation;
 $db->select('state_table');
 
+// Fetch all the states from the database
 while ($state_row = $db->fetch()) {
     $state_list[] = $state_row;
 }
@@ -21,11 +17,20 @@ if ( ! empty($_POST)) {
 
     // Trim all whitespaces from string values
     $_POST = santizing($_POST);
-
+    
+    // Validate the POSTed data
     $error = validate_data($_POST);
+  
+    // Check if the email already exists
+    if (empty($error['email'])) {
+       $error['email'] = existing_email($_POST['email']); 
+    }
+    
+    // Validate the image
     $error[$pic_name] = image_validation($pic_name);
     $fields_validated = TRUE;
 
+    // Check if there are errors during validation
     foreach ($error as $error_keys => $error_messages) {
 
         if ( ! empty($error_messages)) {
@@ -34,9 +39,10 @@ if ( ! empty($_POST)) {
         }
     }
 
+    // If there are no validation errors then do database operations
     if (empty($error[$pic_name]) && $fields_validated) {
         
-        $data =['first_name'=> $_POST['first_name'], 'middle_name'=> $_POST['middle_name'],
+        $data = ['user_name'=> $_POST['user_name'] ,'first_name'=> $_POST['first_name'], 'middle_name'=> $_POST['middle_name'],
             'last_name'=> $_POST['last_name'], 'gender'=> $_POST['gender'], 'dob'=> $_POST['dob'],
             'type'=> $_POST['user_type'],'bio'=> $_POST['comment'],'preferred_comm'=> implode(',', $_POST['pref_comm']),
             'mobile'=> $_POST['contact_num']];
@@ -49,6 +55,7 @@ if ( ! empty($_POST)) {
             'city'=> $_POST['res_addrcity'], 'state'=> $_POST['res_addrstate'], 'zip'=> $_POST['res_addrzip']]; 
         $db->insert_or_update(1, 'user_address', $data_res_addr);
         
+        // If the office address is filled then insert them in database
         if ( ! empty($_POST['ofc_addrstreet']) || $_POST['ofc_addrstate'] === '0' ||
                 ! empty($_POST['ofc_addrcity']) || ! empty($_POST['ofc_addrstate'])) {
             
@@ -57,7 +64,8 @@ if ( ! empty($_POST)) {
             $db->insert_or_update(1, 'user_address', $data_ofc_addr);
         }
         
-        if ($_FILES[$pic_name]['size'] != 0) {
+        // If a file is uploaded
+        if ($_FILES[$pic_name]['size'] !== 0) {
 
             $extension = (pathinfo(basename($_FILES[$pic_name]['name']))['extension']);
             $file_name = PROFILE_PIC . $user_id . '_' . time() . '.' . $extension;
@@ -66,7 +74,9 @@ if ( ! empty($_POST)) {
                 $db->insert_or_update(2, 'users', ['image'=> basename($file_name)], ['id'=>$user_id]);              
             }
         }
-        header('Location: sign_up.php?success=1');
+        
+        // Redirect to login page after registration
+        header('Location: login.php?success=1');
     }
 }
 ?>
@@ -82,20 +92,16 @@ if ( ! empty($_POST)) {
     </head>
     <body>
         <!-- Include the navigation bar -->
-        <?php require_once 'templates/navigation.php'; ?>
-        <div class='confirmation margin-top120'>
-            <?php
-            if (isset($_GET['success']) && 1) {
-                echo "User registered successfully!";
-            }
-            ?> 
-        </div>
+        <?php         
+            require_once 'templates/navigation.php';
+        ?>
+        <div class='confirmation margin-top120'></div>
         <section id="signupform">
-            <h3><?php echo $msg; ?></h3>
             <div class="container">
                 <h3>Please fill in to sign up ...</h3>
                 <form class="form-horizontal" role="form" method="post" enctype="multipart/form-data" 
                       action="sign_up.php">
+
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="user_name">Username <span class="color-remove">*</span>
                         </label>
@@ -141,19 +147,18 @@ if ( ! empty($_POST)) {
                         <div class="col-sm-4 error-msg">
                             <?php echo isset($error['last_name']) ? $error['last_name'] : ''; ?> 
                         </div>
-                    </div>      
-
+                    </div>                        
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="email">Email <span class="color-remove">*</span></label>
                         <div class="col-sm-3">
                             <input type="email" class="form-control" id="email" placeholder="bobjmartin@example.com"
-                                   name="email" value="<?php echo isset($_POST['email']) ? $_POST['email'] : ''; ?>">
+                                   name="email" value="<?php 
+                                   echo isset($_GET['email']) ? $_GET['email'] : (isset($_POST['email']) ? $_POST['email'] : ''); ?>">
                         </div>
                         <div class="col-sm-4 error-msg">
                             <?php echo isset($error['email']) ? $error['email'] : ''; ?> 
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="pwd">Password <span class="color-remove">*</span>
                         </label>
@@ -178,7 +183,6 @@ if ( ! empty($_POST)) {
                             <?php echo isset($error['confirm_password']) ? $error['confirm_password'] : ''; ?>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="contact_num">Contact Number <span class="color-remove">*</span>
                         </label>
@@ -230,12 +234,13 @@ if ( ! empty($_POST)) {
                         <div class="col-sm-3">
                             <input type="file" name="profile_pic" id="profile_pic" />
                         </div>
-                        <div class="col-sm-4 error-msg"><?php echo isset($error['profile_pic']) ? $error['profile_pic'] : ''; ?> </div>
+                        <div class="col-sm-4 error-msg">
+                             <?php echo isset($error['profile_pic']) ? $error['profile_pic'] : ''; ?>  
+                        </div>
                     </div>
-
+                    
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="res_addrstate">Residence Address <span class="color-remove">*</span></label>  
-
                         <div class="col-sm-4">
                             <select class="form-control " id="res_addrstate" name="res_addrstate">  
                                 <option value="" >Select State</option>
@@ -245,6 +250,7 @@ if ( ! empty($_POST)) {
                                     echo (isset($_POST['res_addrstate']) && $_POST['res_addrstate'] === $state['id']) ? 'selected ' : '';
                                     echo '>' . $state['name'] . '</option>';
                                 }
+                                
                                 ?>
                             </select>
                         </div>
@@ -268,7 +274,7 @@ if ( ! empty($_POST)) {
                         </div>
                         <div class="col-sm-4 need-spacing error-msg"><?php echo isset($error['res_addrzip']) ? $error['res_addrzip'] : ''; ?> </div>
                     </div>
-
+                    
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="ofc_addrstate">Office Address &nbsp;</label>           
 
@@ -281,6 +287,7 @@ if ( ! empty($_POST)) {
                                     echo (isset($_POST['ofc_addrstate']) && $_POST['ofc_addrstate'] === $state['id']) ? 'selected ' : '';
                                     echo '>' . $state['name'] . '</option>';
                                 }
+                                
                                 ?>
                             </select>
                         </div>
@@ -331,6 +338,7 @@ if ( ! empty($_POST)) {
                         <div class="col-sm-offset-2 col-sm-1">
                             <button type="submit" class="btn btn-default btn-lg btn-success">Submit</button>
                         </div>
+                     
                         <div class="col-sm-offset-1 col-sm-1">
                             <button type="reset" class="btn btn-default btn-lg btn-danger">Reset</button>
                         </div>
