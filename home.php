@@ -1,8 +1,25 @@
+<?php
+// Include the constant files
+require_once 'libraries/db.php';
+require_once 'libraries/session.php';
+
+$session = new Session;
+
+// If session not set redirect to index.php
+if ( ! $session->check_session()) {
+    header('Location:index.php');
+}
+
+// Get full name of user from database and add to $_SESSION
+$db = new dbOperation();
+$db->select('users', ['first_name','middle_name','last_name'], ['id'=>$_SESSION['id']]);
+$_SESSION = array_merge($_SESSION, $db->fetch());
+?>
 <!DOCTYPE html>
 <html lang="en">
 
     <head>
-        <title>QuickSeller : Home</title>
+        <title>QuickSeller : User HomePage</title>
         <?php
         require_once 'templates/header.php';
         ?>
@@ -10,15 +27,14 @@
 
     <body >
         <!-- Include the navigation bar -->
-        <?php require_once 'templates/navigation.php'; ?>
+        <?php require_once 'templates/seller_navigation.php'; ?>
 
         <!-- Header -->
         <header>
             <div class="container">
                 <div class="intro-text">
                     <div class="intro-lead-in">Welcome To QuickSeller</div>
-                    <div class="intro-heading">1,2,3 and its sold</div>
-                    <a href="login.php" class=" btn btn-xl">Log in</a>
+                    <div class="intro-heading"><?php echo $_SESSION['first_name'].' '.$_SESSION['middle_name'].' '.$_SESSION['last_name'];?></div>
                 </div>
             </div>
         </header>

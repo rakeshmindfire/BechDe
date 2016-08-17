@@ -1,6 +1,5 @@
 <?php
-
-require_once 'config/constants.php';
+require_once 'libraries/db.php';
 
 /**
  * To validate an image file
@@ -13,7 +12,6 @@ function image_validation($pic) {
     $err = '';
 
     if ($_FILES[$pic]['error'] === 0) {
-
         $extension = pathinfo(basename($_FILES[$pic]['name']))['extension'];
         $check = getimagesize($_FILES[$pic]['tmp_name']);
 
@@ -21,7 +19,7 @@ function image_validation($pic) {
             $err = 'File is not an image.';
         }
 
-        if (!in_array($extension, array('jpeg', 'jpg', 'png', 'gif'))) {
+        if ( ! in_array($extension, array('jpeg', 'jpg', 'png', 'gif'))) {
             $err = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
         }
         
@@ -124,15 +122,10 @@ function validate_data($data) {
  * @return string
  */
 function existing_email($data) {
-    $conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
-
-    if ( ! $conn) {
-        die("Connection failed: " . mysqli_connect_error());
-    }
-    $check_email = mysqli_query($conn, "SELECT * FROM `login` WHERE `email`= '" . $data . "'");
-    $err = empty(mysqli_num_rows($check_email)) ? '' : 'Email already exists';
-    mysqli_close($conn);
-    return $err;
+    $db = new dbOperation();
+    $db->select('login', ['email'], ['email'=>$data]);
+    
+    return empty($db->num_rows_result) ? '': 'Email already exists';
 }
 
 /**
@@ -169,17 +162,18 @@ function validate_using($value, $null_allowed, $type) {
     if ($testpattern) {
 
         if ( ! empty($value)) {
+            
             switch ($type) {
                 case 'alphabet':
                     if ( ! preg_match('/^[A-Za-z]+$/', $value)) {
                         $err = 'This field should contain only alphabets';
-                    };
+                    }
                     break;
 
                 case 'alnum':
                     if ( ! preg_match('/^[A-Za-z0-9]+$/', $value)) {
                         $err = 'This field should contain only alphabets and numeric characters';
-                    };
+                    }
                     break;
 
                 case 'email':
@@ -187,27 +181,25 @@ function validate_using($value, $null_allowed, $type) {
 
                     if (filter_var($email, FILTER_VALIDATE_EMAIL) === FALSE) {
                         $err = "$email is not a valid email address";
-                    } else {
-                        $err = existing_email($value);
-                    }
+                    } 
                     break;
 
                 case 'mobile_num':
                     if ( ! preg_match('/^\d{10}$/', $value)) {
                         $err = 'This field should contain 10 numeric characters';
-                    };
+                    }
                     break;
 
                 case 'zip':
                     if ( ! preg_match('/^\d{6}$/', $value)) {
                         $err = 'This field should contain 6 numeric characters';
-                    };
+                    }
                     break;
 
                 case 'float':
                     if ( ! preg_match('/^(\d|\d*.\d*)$/', $value)) {
                         $err = 'This field should contain a number';
-                    };
+                    }
                     break;
 
                 case 'dob':
@@ -225,6 +217,7 @@ function validate_using($value, $null_allowed, $type) {
                     break;
 
                 case 'any':
+                default:
                     // Nothing required
                     break;
             }
@@ -255,5 +248,4 @@ function santizing($data) {
 
     return $data;
 }
-
 ?>

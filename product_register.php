@@ -1,32 +1,38 @@
 <?php 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-ini_set('upload_max_filesize', '2M');
-// Include the constant file
+// Include the constant files
 require_once 'helper/validation.php';
-require_once 'config/constants.php';
+require_once 'libraries/db.php';
+require_once 'libraries/session.php';
 
-$msg = '';
-$is_update = FALSE;
+$db = new dbOperation;
+$session = new Session;
 
-// Connecting to DB
-$conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
-
-// Handled case if connection failed
-if ( ! $conn) {
-    die("Connection failed: " . mysqli_connect_error());
+// If session not set redirect to index.php
+if ( ! $session->check_session()) {
+    header('Location:index.php');
 }
 
-if(isset($_GET['update_id']) ) {
-    $is_update = TRUE;
-    $sql_get_values_to_update = "SELECT `category`,`name`,`amount`,`description`,`image` FROM `products_list` "
-        . "WHERE `products_list`.`id` ='". $_GET['update_id']."'";
-    $row_to_update = mysqli_fetch_assoc(mysqli_query($conn, $sql_get_values_to_update));
-} 
+$is_update = FALSE;
 
-$sql_get_category = "SELECT `id`, `name` FROM `products_category`";
-$categories = mysqli_query($conn, $sql_get_category);
+if (isset($_GET['update_id']) ) {
+    
+    // Check if product belongs to that user
+    $db->select('products_list', ['user_id'], ['id'=>$_GET['update_id']]);
+    $res_user_id = $db->fetch();
+
+    // Logging out User if try to update any other user product
+    if ($res_user_id['user_id'] !== $_SESSION['id']) {
+        header('Location: logout.php');
+    }
+ 
+    // Set the flag to show data is being updated
+    $is_update = TRUE;
+    
+    // Fetch all data of the product being updated
+    $db->select('products_list', ['category', 'name', 'amount', 'description', 'image'], 
+        ['id' => $_GET['update_id']]);
+    $row_to_update = $db->fetch();
+} 
 
 if ( ! empty($_POST)) {
 
@@ -34,80 +40,63 @@ if ( ! empty($_POST)) {
     
     // Trim all whitespaces from string values
     $_POST = santizing($_POST);
-    $error = validate_data($_POST);     
-    $error[$pic_name] = ! empty($_FILES) && $_FILES[$pic_name]['error'] !=4 ? 
-        image_validation($pic_name) : ($is_update ? '': 'Product image required.'); 
-
-    $fields_validated = TRUE;
     
+    // Validate the POSTed data
+    $error = validate_data($_POST);     
+    
+    // Show error if no image file is uploaded
+    $error[$pic_name] = ! empty($_FILES) && $_FILES[$pic_name]['error'] != 4 ? 
+        image_validation($pic_name) : ($is_update ? '': 'Product image required.'); 
+    $fields_validated = TRUE;
+  
+    // Check if there are errors during validation
     foreach ($error as $error_keys => $error_messages) {
    
-        if( ! empty($error_messages)) {
+        if ( ! empty($error_messages)) {
             $fields_validated = FALSE;
             break;
         }
     }
     
-    if (empty($error[$pic_name]) && $fields_validated){
-
-        if(!$is_update) {
-            $sql = "INSERT INTO `products_list` ( `category`,`user_id`, `name`, `amount`, "
-                    . "`description`, `created_date`) VALUES "
-                    . "( '" . $_POST['category'] . "','1','" . $_POST['product_name']
-                    . "', '" . $_POST['product_price'] . "', '" . $_POST['description']
-                    . "', NOW())";
-
+    // If there are no validation errors then do database operations
+    if (empty($error[$pic_name]) && $fields_validated) {
+        $data = ['category'=>$_POST['category'], 'user_id'=> $_SESSION['id'], 'name'=> $_POST['product_name'],
+                    'amount'=>$_POST['product_price'], 'description'=>$_POST['description'] ];
+ 
+        // INSERT / UPDATE data depending on mode
+        if ( ! $is_update) {
+            $product_id = $db->insert_or_update(1, 'products_list', $data);
         } else {
-            $sql = "UPDATE `products_list` SET `category` = '". $_POST['category']
-                    . "', `name` = '" . $_POST['product_name'] 
-                    . "', `amount` = '". $_POST['product_price']
-                    . "', `description` = '". $_POST['description']
-                     . "' WHERE `products_list`.`id` = ". $_GET['update_id'];
+            $db->insert_or_update(2,'products_list',$data,['id'=>$_GET['update_id']]);
+            $product_id = $_GET['update_id'];
         }
-        if ( ! mysqli_query($conn, $sql)) {
-               $msg= "New record in PRODUCT_LIST FAILURE";
-               echo 'err1-->'. mysqli_error($conn);
-               header('Location: error.php');
-              // exit;
-        }
-
-        $product_id = $is_update ? $_GET['update_id'] : mysqli_insert_id($conn);
-        
-        if($is_update && $_FILES[$pic_name]['size'] != 0) {
-           $sql_get_image = "SELECT `image` from `products_list` WHERE `id`=".$_GET['update_id'];
-           $img_to_update = mysqli_fetch_assoc(mysqli_query($conn, $sql_get_image));
+ 
+        // Delete the previous image if a new file is uploaded
+        if ($is_update && $_FILES[$pic_name]['size'] !== 0) {
+            $db->select('products_list', ['image'],['id'=>$_GET['update_id']]);
+             $img_to_update = $db->fetch();
            
-           if( ! is_null($img_to_update['image']) && file_exists(PRODUCT_PIC.$img_to_update['image'])) {
+           if ( ! is_null($img_to_update['image']) && file_exists(PRODUCT_PIC.$img_to_update['image'])) {
                unlink(PRODUCT_PIC.$img_to_update['image']);
            }
         }
 
-        if( ! empty($_FILES[$pic_name]))
-        {
-
-            $extension=(pathinfo( basename($_FILES[$pic_name]['name']))['extension']);
+        // Enter (new) image file to the database
+        if ( ! empty($_FILES[$pic_name])) {
+            $extension = (pathinfo(basename($_FILES[$pic_name]['name']))['extension']);
             $file_name = PRODUCT_PIC . $product_id .'_'. time() . '.' . $extension;
             
             if (move_uploaded_file($_FILES[$pic_name]['tmp_name'], $file_name)) {
-
-                $sql_put_image = "UPDATE `products_list` SET `image`='"
-                        . basename($file_name)
-                        ."' WHERE `id`='".$product_id."'";
-
-                if ( ! mysqli_query($conn, $sql_put_image)) {
-                    $msg= "New record in PRODUCTS_LIST (image) FAILURE";
-                    echo 'err1-->'. mysqli_error($conn);
-                    header('Location: error.php');
-                }
+                
+                $db->insert_or_update(2, 'products_list', ['image'=> basename($file_name)], ['id'=>$product_id]);
             }
         }
-        $message= $is_update ?  2: 1;
-        header("Location: product_list.php?success=$message");  
+        
+        // Redirect to product list page with current action message
+        $message = $is_update ?  2: 1; 
+        header('Location: product_list.php?success='.$message);  
     }
 }
-
- mysqli_close($conn);
-
 ?>
 
 <!DOCTYPE html>
@@ -122,11 +111,10 @@ if ( ! empty($_POST)) {
     </head>
     <body >
         <!-- Include the navigation bar -->
-        <?php require_once 'templates/navigation.php'; ?>
+        <?php require_once 'templates/seller_navigation.php'; ?>
 
         <div class='confirmation margin-top120'> </div>
         <section>
-            <h3><?php echo $msg; ?></h3>
         <div class="container">
           <h3><?php echo $is_update? 'update ': 'add '; ?>  your product ...</h3>
           <form class="form-horizontal" role="form" method="post" enctype="multipart/form-data" 
@@ -139,8 +127,9 @@ if ( ! empty($_POST)) {
                 <select class="form-control " id="category" name="category" >  
                     <option value="" >Select Category</option>
                         <?php
-                        
-                            while($row = mysqli_fetch_assoc($categories)) {                    
+                        // Fetch category id and name from database
+                        $db->select('products_category');
+                        while($row = $db->fetch()) {                    
                                 echo '<option value="'.$row['id'].'" ';
                                 echo  ($is_update && $row['id'] === $row_to_update['category'])
                                 || (isset($_POST['category']) && $_POST['category'] === $row['id'])
@@ -183,7 +172,9 @@ if ( ! empty($_POST)) {
                     <input type="file" name="product_pic" id="product_pic" />
                 </div>
                 <div class="col-sm-7 error-msg">  
-                <?php if($is_update) { ?>
+                <?php
+                // Show the current picture during update
+                if ($is_update) { ?>
                        <!-- Trigger the modal with a button -->
                     <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">Current Product Image</button>
 
@@ -194,7 +185,7 @@ if ( ! empty($_POST)) {
                         <!-- Modal content-->
                         <div class="modal-body" >
                             <img src="<?php 
-                            echo empty ( $row_to_update['image']) || !file_exists ( PRODUCT_PIC.$row_to_update['image']) 
+                            echo empty( $row_to_update['image']) || !file_exists ( PRODUCT_PIC.$row_to_update['image']) 
                             ? NOIMAGE : PRODUCT_PIC.$row_to_update['image']; ?>" 
                             class="img-thumbnail">
                             <div class="clearfix">
@@ -213,7 +204,7 @@ if ( ! empty($_POST)) {
                     <textarea class="form-control" rows="5" id="description" 
                             placeholder="Describe the product..." name="description" ><?php
                             
-                            if($is_update) {
+                            if ($is_update) {
                                 echo $row_to_update['description'];
                             } else {
                                   echo isset($_POST['description']) ? $_POST['description']:'';
@@ -232,8 +223,7 @@ if ( ! empty($_POST)) {
             </div>
           </form>
         </div>
-        </section>   
-        
+        </section>         
          <?php require_once 'templates/footer.php';?>
     </body>
 

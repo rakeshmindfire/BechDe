@@ -1,36 +1,42 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-require_once 'config/constants.php';
+// Include the constant files
+require_once 'libraries/db.php';
+require_once 'libraries/session.php';
 
-// Connecting to DB
-$conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
+$session = new Session;
 
-// Handled case if connection failed
-if ( ! $conn) {
-    die("Connection failed: " . mysqli_connect_error());
+// If session not set redirect to index.php
+if ( ! $session->check_session()) {
+    header('Location:index.php');
 }
 
+$db = new dbOperation;
+
+// Remove image of the product on choosing delete option 
 if (isset($_GET['delete_id'])) {
-    $sql_get_image = "SELECT `image` FROM `products_list`"
-            . " WHERE `products_list`.`id` ='" . $_GET['delete_id'] . "'";
-    $image_to_delete = mysqli_query($conn, $sql_get_image);
-    
-    if ( ! empty(mysqli_num_rows($image_to_delete))) {
-        $image_to_delete = mysqli_fetch_assoc($image_to_delete);
-        unlink(PRODUCT_PIC . $image_to_delete['image']);
+  
+    // Check if product belongs to that user
+    $db->select('products_list', ['user_id'], ['id'=>$_GET['delete_id']]);
+    $res_user_id = $db->fetch();
+
+    // Logging out User if try to update any other user product
+    if ($res_user_id['user_id'] !== $_SESSION['id']) {
+        header('Location: logout.php');
     }
-    $sql_delete = "DELETE FROM `products_list` WHERE `products_list`.`id` ='" . $_GET['delete_id'] . "'";
-    mysqli_query($conn, $sql_delete);
+    
+    $db->select('products_list', ['image'],['id'=>$_GET['delete_id']]);
+    $image_to_delete = $db->fetch();         
+    
+    if ( ! is_null($image_to_delete['image']) && file_exists(PRODUCT_PIC.$image_to_delete['image'])) {
+        unlink(PRODUCT_PIC.$image_to_delete['image']);
+    }
+    $db->delete('products_list', ['id'=>$_GET['delete_id']]);
 }
 
-$sql_get_products = "SELECT pl.id,pc.name as category_name,pl.image,pl.name as product_name,pl.amount,"
-        . "pl.description,pl.created_date"
-        . " FROM products_list pl JOIN products_category pc ON pl.category=pc.id "
-        . "ORDER BY pl.created_date DESC";
-
-$products = mysqli_query($conn, $sql_get_products);
+// Fetch all details of the poducts
+$db->select('products_list pl JOIN products_category pc ON pl.category=pc.id AND pl.user_id='.$_SESSION['id'] ,
+    ['pl.id', 'pc.name as category_name', 'pl.image', 'pl.name as product_name', 'pl.amount', 'pl.description', 'pl.created_date'],
+    NULL, ['pl.created_date', 'DESC'])
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,29 +50,32 @@ require_once 'templates/header.php';
     <body >
 
         <!-- Include the navigation bar -->
-<?php require_once 'templates/navigation.php'; ?>
-
+<?php require_once 'templates/seller_navigation.php'; ?>
         <div class="confirmation margin-top120">
 <?php
 if (isset($_GET['success'])) {
     switch ($_GET['success']) {
-        case 1:
+        case '1':
             echo "Product registered successfully!";
             break;
 
-        case 2:
+        case '2':
             echo "Product updated successfully!";
             break;
 
-        case 3:
+        case '3':
             echo "Product deleted successfully!";
+            break;
+        
+        default:
+            error_log_file('Wrong URL');
             break;
     }
 }
 ?>
         </div>
         <div class="container table-responsive" >
-            <?php if (mysqli_num_rows($products) > 0) { ?>
+            <?php if ($db->num_rows_result > 0) { ?>
                 <h2>Your Products</h2>
                 <table class="table table-bordered table-condensed" >
                     <thead>
@@ -81,9 +90,9 @@ if (isset($_GET['success'])) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = mysqli_fetch_assoc($products)) { ?>                
+                        <?php while ($row = $db->fetch()) { ?>                
                             <tr> 
-                                <td><?php echo$row['category_name']; ?></td>
+                                <td><?php echo $row['category_name']; ?></td>
                                 <td>
                                     <img src="<?php
                     echo (( ! is_null($row['image']) && file_exists(PRODUCT_PIC . $row['image'])) ? PRODUCT_PIC . $row['image'] : NOIMAGE);
