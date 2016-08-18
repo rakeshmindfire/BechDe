@@ -28,7 +28,7 @@ if ( ! empty($_POST)) {
 
         if ($db->num_rows_result === 0) {
            $error['email'] = 'Email address does not match any account.<a href="sign_up.php?email='
-                .$_POST[email].'">Register Now</a>';
+                .$_POST['email'].'">Register Now</a>';
         } else {
             $db_result = $db->fetch();
             
@@ -67,14 +67,14 @@ if ( ! empty($_POST)) {
         <section >
             <div class="container">
                 <h3>Log in to QuickSeller ...</h3>
-                <form class="form-horizontal" role="form" method="post" action="login.php">
+                <form class="form-horizontal" role="form" method="post" action="login.php" onsubmit="return validate_form()">
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="email">Email </label>
                         <div class="col-sm-3">
                             <input type="email" class="form-control" id="email" placeholder="bobjmartin@example.com"
                                    name="email" value="<?php echo isset($_POST['email']) ? $_POST['email'] : ''; ?>">
                         </div>
-                        <div class="col-sm-4 error-msg">
+                        <div class="col-sm-4 error-msg" id="email_error">
                             <?php echo isset($error['email']) ? $error['email'] : ''; ?> 
                         </div>
                     </div>
@@ -85,7 +85,7 @@ if ( ! empty($_POST)) {
                             <input type="password" class="form-control" id="pwd" placeholder="password"
                                    name="password" value="<?php echo isset($_POST['password']) ? $_POST['password'] : ''; ?>">
                         </div>
-                        <div class="col-sm-4 error-msg">
+                        <div class="col-sm-4 error-msg" id="password_error">
                             <?php echo isset($error['password']) ? $error['password'] : ''; ?> 
                         </div>
                     </div>

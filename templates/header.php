@@ -15,3 +15,4 @@
 <!-- Theme CSS -->
 <link href="css/theme.css" rel="stylesheet">
 <link href="css/style.css" rel="stylesheet">
+<script src="js/validate.js"></script>
