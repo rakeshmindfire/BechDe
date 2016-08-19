@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Aug 19, 2016 at 11:33 AM
+-- Generation Time: Aug 19, 2016 at 12:01 PM
 -- Server version: 5.5.50-0ubuntu0.14.04.1
 -- PHP Version: 5.5.9-1ubuntu4.17
 
@@ -47,6 +47,18 @@ CREATE TABLE `products_category` (
   `updated_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Dumping data for table `products_category`
+--
+
+INSERT INTO `products_category` (`id`, `name`, `created_date`, `updated_date`) VALUES
+(1, 'Mobile', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(2, 'TV', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(3, 'AC', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(4, 'Bike', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(5, 'Laptop', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(8, 'Mobile Accessories', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+
 -- --------------------------------------------------------
 
 --
@@ -68,27 +80,6 @@ CREATE TABLE `products_list` (
 -- --------------------------------------------------------
 
 --
--- Stand-in structure for view `q`
--- (See below for the actual view)
---
-CREATE TABLE `q` (
-`type` tinyint(4)
-);
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `qq`
--- (See below for the actual view)
---
-CREATE TABLE `qq` (
-`first_name` varchar(30)
-,`type` tinyint(4)
-);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `state_table`
 --
 
@@ -96,6 +87,53 @@ CREATE TABLE `state_table` (
   `id` int(11) NOT NULL,
   `name` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `state_table`
+--
+
+INSERT INTO `state_table` (`id`, `name`) VALUES
+(1, 'Andaman and Nicobar '),
+(2, 'Andhra Pradesh'),
+(3, 'Arunachal Pradesh'),
+(4, 'Assam'),
+(5, 'Bihar'),
+(6, 'Chandigarh'),
+(7, 'Chhattisgarh'),
+(8, 'Dadra and Nagar Have'),
+(9, 'Daman and Diu'),
+(10, 'Delhi'),
+(11, 'Goa'),
+(12, 'Gujarat'),
+(13, 'Haryana'),
+(14, 'Himachal Pradesh'),
+(15, 'Jammu and Kashmir'),
+(16, 'Jharkhand'),
+(17, 'Karnataka'),
+(18, 'Kenmore'),
+(19, 'Kerala'),
+(20, 'Lakshadweep'),
+(21, 'Madhya Pradesh'),
+(22, 'Maharashtra'),
+(23, 'Manipur'),
+(24, 'Meghalaya'),
+(25, 'Mizoram'),
+(26, 'Nagaland'),
+(27, 'Narora'),
+(28, 'Natwar'),
+(29, 'Odisha'),
+(30, 'Paschim Medinipur'),
+(31, 'Pondicherry'),
+(32, 'Punjab'),
+(33, 'Rajasthan'),
+(34, 'Sikkim'),
+(35, 'Tamil Nadu'),
+(36, 'Telangana'),
+(37, 'Tripura'),
+(38, 'Uttar Pradesh'),
+(39, 'Uttarakhand'),
+(40, 'Vaishali'),
+(41, 'West Bengal');
 
 -- --------------------------------------------------------
 
@@ -137,24 +175,6 @@ CREATE TABLE `user_address` (
   `created_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `updated_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Structure for view `q`
---
-DROP TABLE IF EXISTS `q`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `q`  AS  select `ua`.`type` AS `type` from (`users` `u` join `user_address` `ua` on((`u`.`id` = `ua`.`user_id`))) ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `qq`
---
-DROP TABLE IF EXISTS `qq`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `qq`  AS  select `u`.`first_name` AS `first_name`,`ua`.`type` AS `type` from (`users` `u` join `user_address` `ua` on((`u`.`id` = `ua`.`user_id`))) ;
 
 --
 -- Indexes for dumped tables
@@ -199,39 +219,6 @@ ALTER TABLE `users`
 ALTER TABLE `user_address`
   ADD PRIMARY KEY (`address_id`),
   ADD KEY `user_id` (`user_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `products_category`
---
-ALTER TABLE `products_category`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
---
--- AUTO_INCREMENT for table `products_list`
---
-ALTER TABLE `products_list`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
---
--- AUTO_INCREMENT for table `state_table`
---
-ALTER TABLE `state_table`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=186;
---
--- AUTO_INCREMENT for table `user_address`
---
-ALTER TABLE `user_address`
-  MODIFY `address_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1186;
---
--- Constraints for dumped tables
---
 
 --
 -- Constraints for table `products_list`
