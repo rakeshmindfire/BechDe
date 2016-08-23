@@ -15,7 +15,6 @@ error_reporting(E_ALL);
 require_once 'config/constants.php';
 require_once 'helper/error_log.php';
 
-
 class dbOperation {
     private $conn;
     private $query;
@@ -60,9 +59,9 @@ class dbOperation {
             $order = isset($order_by[1]) ? $order_by[1] : 'ASC';
             $this->query .= ' ORDER BY '.$order_by[0].' '.$order;
         } 
-        
+
         $this->query_result = mysqli_query($this->conn, $this->query);
-        $this->validate_result('select');
+        $this->validate_result('select'.$this->query);
         $this->num_rows_result = mysqli_num_rows($this->query_result);
     }
    
