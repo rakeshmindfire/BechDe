@@ -1,27 +1,14 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
+// Include the constant files
 require_once 'helper/states.php';
 require_once 'helper/validation.php';
-require_once 'config/constants.php';
-$msg = '';
+require_once 'libraries/db.php';
 
-$conn = mysqli_connect(SERVERNAME, USERNAME, PASSWORD, DBNAME);
+$db = new dbOperation;
+$db->select('state_table');
 
-if ( ! $conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-
-$sql_get_states = "SELECT `id`, `name` FROM `state_table`";
-
-if ( ! ($state_query_result = mysqli_query($conn, $sql_get_states))) {
-    echo 'err1-->' . mysqli_error($conn);
-    header('Location: error.php');
-}
-
-while ($state_row = mysqli_fetch_assoc($state_query_result)) {
+// Fetch all the states from the database
+while ($state_row = $db->fetch()) {
     $state_list[] = $state_row;
 }
 
@@ -30,11 +17,20 @@ if ( ! empty($_POST)) {
 
     // Trim all whitespaces from string values
     $_POST = santizing($_POST);
-
+    
+    // Validate the POSTed data
     $error = validate_data($_POST);
+  
+    // Check if the email already exists
+    if (empty($error['email'])) {
+       $error['email'] = existing_email($_POST['email']); 
+    }
+    
+    // Validate the image
     $error[$pic_name] = image_validation($pic_name);
     $fields_validated = TRUE;
 
+    // Check if there are errors during validation
     foreach ($error as $error_keys => $error_messages) {
 
         if ( ! empty($error_messages)) {
@@ -43,69 +39,46 @@ if ( ! empty($_POST)) {
         }
     }
 
+    // If there are no validation errors then do database operations
     if (empty($error[$pic_name]) && $fields_validated) {
-
-        $sql = "INSERT INTO `users` ( `first_name`, `middle_name`, `last_name`, `gender`, `dob`,"
-                . " `type`, `bio`, `preferred_comm`, `mobile`, `created_date`) VALUES ('"
-                . $_POST['first_name'] . "','". $_POST['middle_name'] . "','". $_POST['last_name'] 
-                . "','". $_POST['gender'] . "','". $_POST['dob'] . "','". $_POST['user_type'] 
-                . "','". $_POST['comment'] . "','". implode(',', $_POST['pref_comm']) . "','"
-                . $_POST['contact_num'] . "', NOW())";
-
-        if ( ! mysqli_query($conn, $sql)) {
-            $msg = "New record in USERS FAILURE";
-            echo 'err1-->' . mysqli_error($conn);
-            header('Location: error.php');
-        }
-
-        $user_id = mysqli_insert_id($conn);
-        $sql_login = "INSERT INTO `login`(`email`, `password`, `user_id`, `created_date`) VALUES ('"
-                . $_POST['email']. "','". $_POST['password']. "','". $user_id. "', NOW())";
-
-        if ( ! mysqli_query($conn, $sql_login)) {
-            $msg = "New record in LOGIN FAILURE";
-            echo 'err2-->' . mysqli_error($conn);
-        }
-
-        $sql_addr = "INSERT INTO `user_address` (`user_id`, `type`, `street`, `city`, `state`, `zip`"
-                . ",`created_date`) VALUES ('". $user_id. "', '1', '" . $_POST['res_addrstreet']
-                . "', '". $_POST['res_addrcity']. "', '". $_POST['res_addrstate']. "', '". $_POST['res_addrzip']
-                . "', NOW())";
-
+        
+        $data = ['user_name'=> $_POST['user_name'] ,'first_name'=> $_POST['first_name'], 'middle_name'=> $_POST['middle_name'],
+            'last_name'=> $_POST['last_name'], 'gender'=> $_POST['gender'], 'dob'=> $_POST['dob'],
+            'type'=> $_POST['user_type'],'bio'=> $_POST['comment'],'preferred_comm'=> implode(',', $_POST['pref_comm']),
+            'mobile'=> $_POST['contact_num']];
+        $user_id = $db->insert_or_update(1, 'users', $data);
+        
+        $data_login = ['email'=> $_POST['email'],'password'=> $_POST['password'], 'user_id'=> $user_id];
+        $db->insert_or_update(1, 'login', $data_login);
+        
+        $data_res_addr = ['user_id'=> $user_id, 'type'=> '1', 'street'=> $_POST['res_addrstreet'],
+            'city'=> $_POST['res_addrcity'], 'state'=> $_POST['res_addrstate'], 'zip'=> $_POST['res_addrzip']]; 
+        $db->insert_or_update(1, 'user_address', $data_res_addr);
+        
+        // If the office address is filled then insert them in database
         if ( ! empty($_POST['ofc_addrstreet']) || $_POST['ofc_addrstate'] === '0' ||
                 ! empty($_POST['ofc_addrcity']) || ! empty($_POST['ofc_addrstate'])) {
-
-            $sql_addr.= ",('". $user_id. "', '2', '". $_POST['ofc_addrstreet']. "', '". $_POST['ofc_addrcity']
-                    . "', '". $_POST['ofc_addrstate']. "', '". $_POST['ofc_addrzip']. "', NOW())";
+            
+            $data_ofc_addr = ['user_id'=> $user_id, 'type'=> '2', 'street'=> $_POST['ofc_addrstreet'],
+                'city'=> $_POST['ofc_addrcity'], 'state'=> $_POST['ofc_addrstate'], 'zip'=> $_POST['ofc_addrzip']];
+            $db->insert_or_update(1, 'user_address', $data_ofc_addr);
         }
-
-        if ( ! mysqli_query($conn, $sql_addr)) {
-            $msg = "New record in USER_ADDR FAILURE";
-            echo 'err-->' . mysqli_error($conn);
-        }
-
-        if ($_FILES[$pic_name]['size'] != 0) {
+        
+        // If a file is uploaded
+        if ($_FILES[$pic_name]['size'] !== 0) {
 
             $extension = (pathinfo(basename($_FILES[$pic_name]['name']))['extension']);
             $file_name = PROFILE_PIC . $user_id . '_' . time() . '.' . $extension;
 
             if (move_uploaded_file($_FILES[$pic_name]['tmp_name'], $file_name)) {
-
-                $sql_putimage = "UPDATE `users` SET `image`='"
-                        . basename($file_name)
-                        . "' WHERE `id`='" . $user_id . "'";
-
-                if ( ! mysqli_query($conn, $sql_putimage)) {
-                    $msg = "New record in USERS (image) FAILURE";
-                    echo 'err1-->' . mysqli_error($conn);
-                    header('Location: error.php');
-                }
+                $db->insert_or_update(2, 'users', ['image'=> basename($file_name)], ['id'=>$user_id]);              
             }
         }
-        header('Location: sign_up.php?success=1');
+        
+        // Redirect to login page after registration
+        header('Location: login.php?success=1');
     }
 }
-mysqli_close($conn);
 ?>
 
 <!DOCTYPE html>
@@ -119,20 +92,16 @@ mysqli_close($conn);
     </head>
     <body>
         <!-- Include the navigation bar -->
-        <?php require_once 'templates/navigation.php'; ?>
-        <div class='confirmation margin-top120'>
-            <?php
-            if (isset($_GET['success']) && 1) {
-                echo "User registered successfully!";
-            }
-            ?> 
-        </div>
+        <?php         
+            require_once 'templates/navigation.php';
+        ?>
+        <div class='confirmation margin-top120'></div>
         <section id="signupform">
-            <h3><?php echo $msg; ?></h3>
             <div class="container">
                 <h3>Please fill in to sign up ...</h3>
                 <form class="form-horizontal" role="form" method="post" enctype="multipart/form-data" 
                       action="sign_up.php">
+
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="user_name">Username <span class="color-remove">*</span>
                         </label>
@@ -178,19 +147,18 @@ mysqli_close($conn);
                         <div class="col-sm-4 error-msg">
                             <?php echo isset($error['last_name']) ? $error['last_name'] : ''; ?> 
                         </div>
-                    </div>      
-
+                    </div>                        
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="email">Email <span class="color-remove">*</span></label>
                         <div class="col-sm-3">
                             <input type="email" class="form-control" id="email" placeholder="bobjmartin@example.com"
-                                   name="email" value="<?php echo isset($_POST['email']) ? $_POST['email'] : ''; ?>">
+                                   name="email" value="<?php 
+                                   echo isset($_GET['email']) ? $_GET['email'] : (isset($_POST['email']) ? $_POST['email'] : ''); ?>">
                         </div>
                         <div class="col-sm-4 error-msg">
                             <?php echo isset($error['email']) ? $error['email'] : ''; ?> 
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="pwd">Password <span class="color-remove">*</span>
                         </label>
@@ -215,7 +183,6 @@ mysqli_close($conn);
                             <?php echo isset($error['confirm_password']) ? $error['confirm_password'] : ''; ?>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="contact_num">Contact Number <span class="color-remove">*</span>
                         </label>
@@ -267,12 +234,13 @@ mysqli_close($conn);
                         <div class="col-sm-3">
                             <input type="file" name="profile_pic" id="profile_pic" />
                         </div>
-                        <div class="col-sm-4 error-msg"><?php echo isset($error['profile_pic']) ? $error['profile_pic'] : ''; ?> </div>
+                        <div class="col-sm-4 error-msg">
+                             <?php echo isset($error['profile_pic']) ? $error['profile_pic'] : ''; ?>  
+                        </div>
                     </div>
-
+                    
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="res_addrstate">Residence Address <span class="color-remove">*</span></label>  
-
                         <div class="col-sm-4">
                             <select class="form-control " id="res_addrstate" name="res_addrstate">  
                                 <option value="" >Select State</option>
@@ -282,6 +250,7 @@ mysqli_close($conn);
                                     echo (isset($_POST['res_addrstate']) && $_POST['res_addrstate'] === $state['id']) ? 'selected ' : '';
                                     echo '>' . $state['name'] . '</option>';
                                 }
+                                
                                 ?>
                             </select>
                         </div>
@@ -305,7 +274,7 @@ mysqli_close($conn);
                         </div>
                         <div class="col-sm-4 need-spacing error-msg"><?php echo isset($error['res_addrzip']) ? $error['res_addrzip'] : ''; ?> </div>
                     </div>
-
+                    
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="ofc_addrstate">Office Address &nbsp;</label>           
 
@@ -318,6 +287,7 @@ mysqli_close($conn);
                                     echo (isset($_POST['ofc_addrstate']) && $_POST['ofc_addrstate'] === $state['id']) ? 'selected ' : '';
                                     echo '>' . $state['name'] . '</option>';
                                 }
+                                
                                 ?>
                             </select>
                         </div>
@@ -368,6 +338,7 @@ mysqli_close($conn);
                         <div class="col-sm-offset-2 col-sm-1">
                             <button type="submit" class="btn btn-default btn-lg btn-success">Submit</button>
                         </div>
+                     
                         <div class="col-sm-offset-1 col-sm-1">
                             <button type="reset" class="btn btn-default btn-lg btn-danger">Reset</button>
                         </div>

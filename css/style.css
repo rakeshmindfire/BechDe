@@ -76,3 +76,30 @@ label {
     width: 500px;
     height: 500px; 
 }
+
+.nav-name {
+     color: #a6e1ec;
+     text-align: right;
+}
+
+#my_products {
+    padding-left: 0px;
+}
+
+#search_category {
+    text-align: right;
+    font-weight: lighter;
+    margin-top: 28px;
+}
+
+#loader_div {
+    text-align: center;
+}
+
+.modal-header {
+    text-align: center;
+}
+
+.remove-product-icon {
+    cursor: pointer;
+}
