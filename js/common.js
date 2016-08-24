@@ -24,8 +24,10 @@ function validate_form() {
 }
 
 $(document).ready(function() {
-    $('#search_button').on('click', fetch_products);
-
+    $('#search_button').on('click',{ type: 1, start: 1, preserve_page: false }, fetch_products);
+    $('#sorting-arrow-up').on('click', { type: 2, preserve_page: true }, fetch_products);
+    $('#sorting-arrow-down').on('click', { type: 3, preserve_page: true }, fetch_products);
+    
     // List all products
     $.ajax({
     url: "search.php?get_list=1",
@@ -46,23 +48,39 @@ $(document).ready(function() {
 
 });
 
-var fetch_products = function() {
+var fetch_products = function(arg) {
     $('#product_list tbody').html('');
     $('#loader_image').removeClass('hide');
+    
+    var preserve = arg.data.preserve_page;
+    
+    if( ! preserve) {
+        $('#product_pagination').addClass('hide').html('');
+    }
+    
     var table_body = '';
- 
+    
+    var last_type = arg.data.type;
+    
+    if ( typeof arg.data.start !== 'undefined') {
+        last_start = arg.data.start;
+    }
+    
     // Search for a category
     $.ajax({
         url: "search.php",
         type: 'post',
         dataType: 'json',
-        data: { id : $('#search').val() },
+        data: { id : $('#search').val(),
+                order_in :  arg.data.type,
+                start_row : arg.data.start || last_start,
+                no_of_rows : page_size 
+              },
         success: function(res) {
             $('#no_data h2').removeClass('show').addClass('hide');
             $('#products_table').addClass('hide');
-            $('#my_products').text(''); 
-            console.log(res);
-
+            $('#my_products').text('');
+            
             if ( ! res.status) {
                 $('#no_data h2').text('No products in this category').removeClass('hide').addClass('show');
             
@@ -89,8 +107,31 @@ var fetch_products = function() {
                 $('#products_table tbody').html(table_body);
                 $('#products_table').removeClass('hide');
 
-                $('.remove-product-icon').on('click', show_modal);
                 $('.product-image').on('click', show_image_modal);
+                
+                if ( ! preserve) {                    
+                    var append_list = '<li class="active"><a>1</a></li>';
+                    var no_of_pages = res.total / page_size;
+
+                    if (no_of_pages > 1) {
+
+                        for ( i=1 ; i < no_of_pages ; i++) {
+                            append_list += '<li ><a>'+ (i+1) +'</a></li>';
+                        }
+
+                    $('#product_pagination').append(append_list).removeClass('hide');   
+                    }
+                }
+                
+                $('#product_pagination li ').off('click')
+                    .on('click', 'a', function () {
+                        $('#product_pagination li').removeClass('active');
+                        $(this).closest('li').addClass('active');                       
+                        var obj = {
+                            data : { type: last_type, start:$(this).html() ,preserve_page:true }
+                        };
+                        fetch_products(obj);
+                    });              
             }
             $('#loader_image').addClass('hide');
         }
@@ -104,11 +145,10 @@ function show_modal(del_id)
     
     $('#confirm_delete').off('click').on('click',function() {
         $.ajax({
-            url: "search.php",
+            url: 'search.php',
             type: 'post',
             data: { delete_id:del_id },
-            success: function(data) {
-                console.log(data);        
+            success: function() {
                 $('#search_button').click(); 
                 $('#confirm_message').text('Product deleted successfully!');
                 $('#myModalDelete').modal('hide');

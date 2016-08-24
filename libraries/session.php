@@ -39,7 +39,7 @@ class Session {
      * @return boolean
      */
     public function check_session() {
-        return empty($_SESSION) ? FALSE : TRUE;
+        return ! empty($_SESSION);
     }
 
     /**

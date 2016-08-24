@@ -21,4 +21,8 @@ define('NOIMAGE', 'img/noimage.jpg');
 
 // Log directory
 define('LOG_DIR', 'log/');
+
+// No of records per page
+define('PER_PAGE_RECORD', 5);
+
 ?>

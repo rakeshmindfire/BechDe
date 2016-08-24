@@ -46,20 +46,36 @@ class dbOperation {
      * @param array $order_by Array of ordering column at index 0 and ordering type at index 1
      * @return void 
      */
-    public function select($table_name, $fields_list=['*'], $where_clause=[], $order_by=[]) {
+    public function select($table_name, $fields_list=['*'], $where_clause=[], $order_by=[], $limit=[]) {
         $this->query = 'SELECT '.implode(',',$fields_list)
             . ' FROM ' . $table_name;
 
         if ($where_clause) {
-            $this->query .= ' WHERE '.implode(array_keys($where_clause)).'= \''
-                .implode(array_values($where_clause)).'\'';
+            $this->query .= ' WHERE ';
+            $where_keys = array_keys($where_clause);
+            $where_values = array_values($where_clause);
+            for ( $i=0 ; $i < sizeof($where_clause); $i++) {
+                $this->query .=  $where_keys[$i].'= \''.$where_values[$i].'\' AND ';
+            }
+            $this->query = rtrim($this->query,'AND ');
+
         }
         
         if ($order_by) {
             $order = isset($order_by[1]) ? $order_by[1] : 'ASC';
             $this->query .= ' ORDER BY '.$order_by[0].' '.$order;
         } 
-
+        
+        if ($limit) {
+            $this->query .= ' LIMIT ';
+            
+            if (isset($limit[1])) {
+                $this->query .= $limit[1] . ' , ';
+            }
+            
+            $this->query .=  $limit[0];
+        } 
+        
         $this->query_result = mysqli_query($this->conn, $this->query);
         $this->validate_result('select'.$this->query);
         $this->num_rows_result = mysqli_num_rows($this->query_result);

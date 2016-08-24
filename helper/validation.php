@@ -102,6 +102,9 @@ function validate_data($data) {
             case 'product_name':
                 $type = 'any';
                 break;
+            
+            default : 
+                break;
         }
         
         $err[$key] = validate_using($value, $null_allowed, $type);

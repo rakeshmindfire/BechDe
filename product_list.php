@@ -10,6 +10,7 @@ if ( ! $session->check_session()) {
     header('Location:index.php');
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <!--head-->
@@ -23,8 +24,9 @@ require_once 'templates/header.php';
 
         <!-- Include the navigation bar -->
 <?php require_once 'templates/seller_navigation.php'; ?>
-        <div class="confirmation margin-top120" id="confirm_message">
+    <div class="confirmation margin-top120" id="confirm_message">
 <?php
+
 if (isset($_GET['success'])) {
     switch ($_GET['success']) {
         case '1':
@@ -57,16 +59,21 @@ if (isset($_GET['success'])) {
                             <th>Category</th>
                             <th>Image</th>
                             <th>Name</th>
-                            <th>Amount</th>
+                            <th>
+                                <a class="glyphicon glyphicon-chevron-up" id="sorting-arrow-up"></a>&nbsp;Amount&nbsp;
+                                <a class="glyphicon glyphicon-chevron-down" id="sorting-arrow-down"></a>
+                            </th>
                             <th>Description</th>
                             <th>Uploaded on</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        
-                    </tbody>
+                    <tbody></tbody>                    
                 </table>
+            <div id="pagination_div">
+                <ul class="pagination" id="product_pagination">                    
+                </ul>
+            </div>
             <div id='no_data'>
             <h2 class="hide">No Products Found!! </h2><br><h4>To add product <a href="product_register.php"> click now</a></h4>
             </div>
@@ -103,6 +110,9 @@ if (isset($_GET['success'])) {
                 </div>
             </div>
         </div>
+        <script type="text/javascript">
+            var page_size = <?php echo PER_PAGE_RECORD; ?>;
+        </script>
         <?php require_once 'templates/footer.php'; ?>
     </body>
 </html>
