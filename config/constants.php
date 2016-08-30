@@ -25,4 +25,10 @@ define('LOG_DIR', 'log/');
 // No of records per page
 define('PER_PAGE_RECORD', 5);
 
+// Activation mail sender's credentials 
+define('SENDER_USERNAME', 'rakeshtill2017@gmail.com');
+define('SENDER_PASSWORD', 'isinvssut');
+
+// Encryption salt
+define('SALT', 'quicksellersalt');
 ?>

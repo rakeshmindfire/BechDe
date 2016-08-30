@@ -1,8 +1,9 @@
 <?php
 // Include the constant files
-require_once 'helper/states.php';
 require_once 'helper/validation.php';
 require_once 'libraries/db.php';
+require_once 'libraries/send_mail.php';
+require_once 'libraries/encrypt_decrypt.php';
 
 $db = new dbOperation;
 $db->select('state_table');
@@ -48,7 +49,7 @@ if ( ! empty($_POST)) {
             'mobile'=> $_POST['contact_num']];
         $user_id = $db->insert_or_update(1, 'users', $data);
         
-        $data_login = ['email'=> $_POST['email'],'password'=> $_POST['password'], 'user_id'=> $user_id];
+        $data_login = ['email'=> $_POST['email'],'password'=> md5($_POST['password']), 'user_id'=> $user_id];
         $db->insert_or_update(1, 'login', $data_login);
         
         $data_res_addr = ['user_id'=> $user_id, 'type'=> '1', 'street'=> $_POST['res_addrstreet'],
@@ -75,6 +76,13 @@ if ( ! empty($_POST)) {
             }
         }
         
+        // Send activation mail
+        $msg = '<b>Thank You for registering in QuickSeller</b>'
+            . '<br>To activate your account click on this '
+            . '<a href="http://local.quickseller.com/activation.php?id='. urlencode(simple_encrypt($user_id)) 
+            . '">link</a>';
+        send_mail($_POST['email'], $msg);
+        
         // Redirect to login page after registration
         header('Location: login.php?success=1');
     }
@@ -92,9 +100,7 @@ if ( ! empty($_POST)) {
     </head>
     <body>
         <!-- Include the navigation bar -->
-        <?php         
-            require_once 'templates/navigation.php';
-        ?>
+        <?php require_once 'templates/show_nav.php'; ?>
         <div class='confirmation margin-top120'></div>
         <section id="signupform">
             <div class="container">
@@ -249,8 +255,7 @@ if ( ! empty($_POST)) {
                                     echo '<option value="' . $state['id'] . '" ';
                                     echo (isset($_POST['res_addrstate']) && $_POST['res_addrstate'] === $state['id']) ? 'selected ' : '';
                                     echo '>' . $state['name'] . '</option>';
-                                }
-                                
+                                }                                
                                 ?>
                             </select>
                         </div>
@@ -282,7 +287,7 @@ if ( ! empty($_POST)) {
                             <select class="form-control " id="ofc_addrstate" name="ofc_addrstate" >  
                                 <option value="" >Select State</option>
                                 <?php
-                                foreach ($state_list as $state) {
+                                foreach ($state_list as $state_id=>$state) {
                                     echo '<option value="' . $state_id . '" ';
                                     echo (isset($_POST['ofc_addrstate']) && $_POST['ofc_addrstate'] === $state['id']) ? 'selected ' : '';
                                     echo '>' . $state['name'] . '</option>';
@@ -349,5 +354,8 @@ if ( ! empty($_POST)) {
 
         <?php require_once 'templates/footer.php'; ?>
     </body>
+    <script>
+    
+    </script>
 
 </html>

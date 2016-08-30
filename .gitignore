@@ -1,3 +1,6 @@
 node_modules
 /nbproject/private/
 /img
+/sonar-project.properties
+/.sonar
+/log

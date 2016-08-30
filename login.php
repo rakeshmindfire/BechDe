@@ -11,7 +11,7 @@ if ( ! empty($_POST)) {
   // Trim all whitespaces from string values
     $_POST = santizing($_POST);
     $error = validate_data($_POST);
-    $db->select('login', ['password', 'user_id'], ['email'=>$_POST['email']]);
+    $db->select('login', ['password', 'user_id'], ['email'=>$_POST['email'], 'is_activated'=>'1']);
     $fields_validated = TRUE;
 
     // Check whether there is any error after validation
@@ -27,15 +27,15 @@ if ( ! empty($_POST)) {
     if ($fields_validated) {
 
         if ($db->num_rows_result === 0) {
-           $error['email'] = 'Email address does not match any account.<a href="sign_up.php?email='
-                .$_POST['email'].'">Register Now</a>';
+           $error['email'] = 'Email address does not match any account.</br><a href="sign_up.php?email='
+                .$_POST['email'].'">Register Now</a>.';
         } else {
             $db_result = $db->fetch();
-            
-            if ($db_result['password'] === $_POST['password']) {
+            echo md5($_POST['password']);
+            if ($db_result['password'] === md5(trim($_POST['password']))) {
                 $session->init('email', $_POST['email']);
                 $session->init('id', $db_result['user_id']);
-                header('Location: home.php');
+                header('Location: access.php');
             
             } else {
               $error['password'] = 'Wrong password';  
@@ -56,11 +56,28 @@ if ( ! empty($_POST)) {
     </head>
     <body>
         <!-- Include the navigation bar -->
-        <?php require_once 'templates/navigation.php'; ?>
+        <?php require_once 'templates/show_nav.php'; ?>
         <div class='confirmation margin-top120'>           
             <?php
-            if (isset($_GET['success']) && 1) {
-                echo "You can now login !";
+            if (isset($_GET['success'])) {
+                switch ( $_GET['success']) {
+                    case '1':
+                        $login_message = 'A mail for activation has been sent to your account. Please confirm before you login !';
+                        break;
+                     
+                    case '2':
+                        $login_message = 'Your account has been activated. Please login with your credentials.';
+                        break;
+                    
+                    case '3':
+                        $login_message = 'You will get actication mail soon in next 24 hrs.';
+                        break;
+                    
+                    default:
+                        $login_message = 'Invalid action';
+                        break;
+                }
+                echo $login_message;
             }
             ?> 
         </div>

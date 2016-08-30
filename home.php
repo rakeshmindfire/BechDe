@@ -7,11 +7,11 @@ $session = new Session;
 
 // If session not set redirect to index.php
 if ( ! $session->check_session()) {
-    header('Location:index.php');
+     error_log_file('Unauthorized access. Session not set in home page');
 }
 
 // Get full name of user from database and add to $_SESSION
-$db = new dbOperation();
+$db = new dbOperation;
 $db->select('users', ['first_name','middle_name','last_name'], ['id'=>$_SESSION['id']]);
 $_SESSION = array_merge($_SESSION, $db->fetch());
 ?>
@@ -27,7 +27,7 @@ $_SESSION = array_merge($_SESSION, $db->fetch());
 
     <body >
         <!-- Include the navigation bar -->
-        <?php require_once 'templates/seller_navigation.php'; ?>
+        <?php require_once 'templates/show_nav.php'; ?>
 
         <!-- Header -->
         <header>

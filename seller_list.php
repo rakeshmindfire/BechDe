@@ -6,7 +6,7 @@ $session = new Session;
 
 // Get data of all the sellers
 $db = new dbOperation;
-$db->get_all_users(['u.type'=>'S'], ['u.id','ASC']);
+$db->get_all_users(['u.type'=>'2'], ['u.id','ASC']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,14 +20,8 @@ $db->get_all_users(['u.type'=>'S'], ['u.id','ASC']);
     </head>
     <body >
         <!-- Include the navigation bar -->
-        <?php 
-        // Show seller navigation if seller has logged in 
-        if ($session->check_session()) {
-            require_once 'templates/seller_navigation.php';
-        } else {
-            require_once 'templates/navigation.php';
-        }
-?>
+        <?php require_once 'templates/show_nav.php'; ?>
+        
         <div class='confirmation margin-top120'> </div>
         <div class="container">
             <h2>Top Sellers</h2>

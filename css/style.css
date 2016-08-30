@@ -87,7 +87,6 @@ label {
 }
 
 #search_category {
-    text-align: right;
     font-weight: lighter;
     margin-top: 28px;
 }
@@ -100,7 +99,7 @@ label {
     text-align: center;
 }
 
-.remove-product-icon {
+.modify-icons{
     cursor: pointer;
 }
 
@@ -110,4 +109,13 @@ label {
 
 .pagination {
     float: right;
+}
+
+#status_tab {
+      width: 182px;
+      margin-top: 12px;
+}
+
+table {
+    margin-top: 30px;
 }

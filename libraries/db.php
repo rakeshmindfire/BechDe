@@ -17,7 +17,7 @@ require_once 'helper/error_log.php';
 
 class dbOperation {
     private $conn;
-    private $query;
+    public $query;
     private $query_result;
     public $num_rows_result;
     
@@ -75,7 +75,7 @@ class dbOperation {
             
             $this->query .=  $limit[0];
         } 
-        
+
         $this->query_result = mysqli_query($this->conn, $this->query);
         $this->validate_result('select'.$this->query);
         $this->num_rows_result = mysqli_num_rows($this->query_result);
@@ -103,9 +103,15 @@ class dbOperation {
             .'JOIN users u ON u.id=uar.user_id ' 
             .'JOIN login l ON u.id=l.user_id WHERE uar.type=1';
         
-        if ($where_clause) {
-            $this->query .= ' AND '.implode(array_keys($where_clause)).'= \''
-                .implode(array_values($where_clause)).'\'';
+         if ($where_clause) {
+            $this->query .= ' WHERE ';
+            $where_keys = array_keys($where_clause);
+            $where_values = array_values($where_clause);
+            
+            for ( $i=0 ; $i < sizeof($where_clause); $i++) {
+                $this->query .=  $where_keys[$i].'= \''.$where_values[$i].'\' AND ';
+            }
+            $this->query = rtrim($this->query,'AND ');
         }
         
         if ($order_by) {
@@ -145,8 +151,7 @@ class dbOperation {
             case 1:
                 $this->query = 'INSERT INTO '.$table_name.' ('.implode(',',array_keys($data)).',created_date)'
                         . ' VALUES (\''.implode('\',\'',array_values($data)).'\',NOW())';
-                break;
-            
+                break;            
             case 2:
                 $this->query = 'UPDATE '.$table_name.' SET' ;
          
@@ -167,7 +172,7 @@ class dbOperation {
                 $this->log_db_error('Unknown argument in dbOperation::insert_or_update()');
                 break;
         }   
-        
+
         $this->query_result = mysqli_query($this->conn, $this->query);
         $this->validate_result('insert_or_update '.$query_type);
         return $query_type === 1 ? mysqli_insert_id($this->conn): FALSE;
@@ -182,8 +187,18 @@ class dbOperation {
      * @return void
      */
     public function delete($table_name, $where_clause=[]) {
-        $this->query = 'DELETE FROM '.$table_name
-            .' WHERE '.implode(array_keys($where_clause)).'= \''.implode(array_values($where_clause)).'\'';
+        $this->query = 'DELETE FROM '.$table_name;
+       
+        if ($where_clause) {
+            $this->query .= ' WHERE ';
+            $where_keys = array_keys($where_clause);
+            $where_values = array_values($where_clause);
+            for ( $i=0 ; $i < sizeof($where_clause); $i++) {
+                $this->query .=  $where_keys[$i].'= \''.$where_values[$i].'\' AND ';
+            }
+            $this->query = rtrim($this->query,'AND ');
+        }
+        
         $this->query_result = mysqli_query($this->conn, $this->query);
         $this->validate_result('delete');
     }
@@ -208,7 +223,7 @@ class dbOperation {
     public function validate_result($type) {
      
         if ( ! $this->query_result) {
-            $this->log_db_error($type);
+            $this->log_db_error($type. $this->query);
         }
     }
     

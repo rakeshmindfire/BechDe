@@ -52,17 +52,13 @@ function validate_data($data) {
             case 'confirm_password':
                 $type = 'pwd';
                 break;
-
+            
+            case 'middle_name':
             case 'ofc_addrcity':
                 $null_allowed = TRUE;
             case 'first_name':
             case 'last_name':
             case 'res_addrcity':
-                $type = 'alphabet';
-                break;
-
-            case 'middle_name':
-                $null_allowed = TRUE;
                 $type = 'alphabet';
                 break;
 
@@ -125,7 +121,7 @@ function validate_data($data) {
  * @return string
  */
 function existing_email($data) {
-    $db = new dbOperation();
+    $db = new dbOperation;
     $db->select('login', ['email'], ['email'=>$data]);
     
     return empty($db->num_rows_result) ? '': 'Email already exists';

@@ -7,7 +7,7 @@ $session = new Session;
 
 // If session not set redirect to index.php
 if ( ! $session->check_session()) {
-    header('Location:index.php');
+ error_log_file('Unauthorized access. Session not set');
 }
 
 // Fetch all details of the current user
@@ -27,13 +27,8 @@ $profile = $db->fetch();
     </head>
     <body >
         <!-- Include the navigation bar -->
-        <?php 
-        if ($session->check_session()) {
-            require_once 'templates/seller_navigation.php';
-        } else {
-            require_once 'templates/navigation.php';
-        }
-?>
+       <?php require_once 'templates/show_nav.php'; ?>
+        
         <div class='confirmation margin-top120'> </div>
         <div class="container">
             <h2>My Profile</h2>
