@@ -6,8 +6,8 @@ require_once 'libraries/session.php';
 $session = new Session;
 
 // If session not set redirect to index.php
-if ( ! $session->check_session()) {
- error_log_file('Unauthorized access. Session not set');
+if ( ! $session->is_user_authorized()) {
+    error_log_file('Unauthorized access. Session not set');
 }
 
 // Fetch all details of the current user

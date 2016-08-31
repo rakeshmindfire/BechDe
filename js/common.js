@@ -179,20 +179,20 @@ function fetch_products(arg) {
                 var result = res.result;
                 
                 for (var i = 0 ; i < result.length ; i++) {
-                table_body += '<tr>' +
-                    '<td>' + result[i].category_name +'</td>' +
-                    '<td><img src="img/product/' + result[i].image + '" class="product-image"></td>' +
-                    '<td>' + result[i].product_name + '</td>' +
-                    '<td>' + result[i].amount + '</td>' +
-                    '<td>' + result[i].description + '</td>' +
-                    '<td>' + result[i].created_date + '</td>' +
-                    '<td><a onclick=\'window.location="product_register.php?update_id=' + result[i].id + '";\'' +
-                           'class="glyphicon glyphicon-pencil color-edit modify-icons"></a>&nbsp;' +
-                        '<a class="glyphicon glyphicon-remove color-remove modify-icons" onclick="show_modal('+ result[i].id +')" data-id=' + result[i].id +'></a>' +
-                        '<a class="glyphicon modify-icons '+ (status_arg === 1 ? 'glyphicon-minus' : 'glyphicon-ok') +'"' +
-                            'onclick="change_status('+ result[i].id +')"></a>' +
-                    '</td>' +
-                    '</tr>';
+                table_body += '<tr>' 
+                    + '<td>' + result[i].category_name +'</td>' 
+                    + '<td><img src="img/product/' + result[i].image + '" class="product-image"></td>' 
+                    + '<td>' + result[i].product_name + '</td>' 
+                    + '<td>' + result[i].amount + '</td>' 
+                    + '<td>' + result[i].description + '</td>' 
+                    + '<td>' + result[i].created_date + '</td>' 
+                    + '<td><a onclick=\'window.location="product_register.php?update_id=' + result[i].id + '";\'' 
+                    + 'class="glyphicon glyphicon-pencil color-edit modify-icons"></a>&nbsp;' 
+                    + '<a class="glyphicon glyphicon-remove color-remove modify-icons" onclick="show_modal('+ result[i].id +')" data-id=' + result[i].id +'></a>' 
+                    + '<a class="glyphicon modify-icons '+ (status_arg === 1 ? 'glyphicon-minus' : 'glyphicon-ok') +'"' 
+                    + 'onclick="change_status('+ result[i].id +')"></a>' 
+                    + '</td>' 
+                    + '</tr>';
                 }
 
                 $('#products_table tbody').html(table_body);
@@ -254,7 +254,8 @@ $(document).ready(function() {
     var cur_page = window.location.href;
     $(':reset').on('click',function() {
          window.location = cur_page;
-    });  
+    }); 
+    
     
     // List all products in category in product list page
     if (location.pathname.substring(1) === "product_list.php") {
@@ -275,15 +276,96 @@ $(document).ready(function() {
         }
         });
     }
-    
+       
     // Manage tabs for permissions.php
     if (location.pathname.substring(1) === "permissions.php") {
-         $('#role_tab li ').off('click')
-                    .on('click', function () {
-                        $('#role_tab li').removeClass('active');
-                        $(this).closest('li').addClass('active');   
-                        $('table').addClass('hide');
-                        $('#table_'+($(this).text()).toLowerCase()).removeClass('hide');                        
-                    });   
+        
+        $.ajax({
+        url: 'modify_permissions.php',
+        type: 'post',
+        dataType: 'json',
+        data: { get_permissions : 1},
+        success: function(res) {
+
+            // Create roles tab
+            var roles_list_tab = '';
+
+            for(var i=2; i<= res.role.length; i++) {
+                roles_list_tab += '<li class="capitalize ' + (i==2 ? 'active' : '') + '" data-id='+ res.role[i-1].id +
+                    '><a href="#">' + res.role[i-1].name + '</a></li>';
+            }  
+
+            $('#role_tab').append(roles_list_tab);
+
+            // Bind tabs to show the corresponding table
+            $('#role_tab li ').off('click').on('click', function () {
+                $('#role_tab li').removeClass('active');
+                $(this).closest('li').addClass('active');
+                $('table').addClass('hide');
+                $('#table_'+($(this).data('id'))).removeClass('hide');   
+            });
+
+            // Create separate tables for roles
+            var permissions_table = '';
+
+            for (var role_i=2; role_i<=res.role.length; role_i++) {
+
+                //  Create table template
+                permissions_table = '<table class="table table-bordered table-condensed '+ (role_i!==2 ?'hide' : '') +
+                    '" id="table_'+ res.role[role_i-1].id +'" ><thead><tr><th>Resources</th></tr></thead><tbody></tbody></table>';
+                 $('#permissions_div').append(permissions_table);
+
+               // Create table headers
+                var permissions_headers = '';
+
+                for (var permission_i=1; permission_i<=res.permission.length; permission_i++) {
+                    permissions_headers += '<th class="capitalize">' + res.permission[permission_i-1].name + '</th>';
+                }
+
+                $('#table_' + res.role[role_i-1].id + ' tr').append(permissions_headers); 
+
+                // Create checkboxes in the table
+                var permissions_checkbox = '';
+
+                for (var resource_i=1; resource_i<=res.resource.length; resource_i++) {
+                    permissions_checkbox = '<tr><td><b class="capitalize">' + res.resource[resource_i-1].name + '</b></td>';
+
+                    for (var permission_i=1; permission_i<=res.permission.length; permission_i++) {
+                        var id = role_i + '-' + resource_i + '-' + permission_i;
+                        permissions_checkbox += '<td><input type ="checkbox" id="'+ id 
+                            + '" '+ ($.inArray(id,res.present_permissions_imploded)>=0 ? 'checked' : '')+'></td>';
+                    }
+
+                    permissions_checkbox += '</tr>';
+                    $('#table_' + res.role[role_i-1].id + ' tbody').append(permissions_checkbox);
+                }
+            }
+
+
+            // Post data on Submit button click
+            $('#submit_permissions').off('click').on('click', function() {
+                var data = [];
+                $( "input:checked" ).each( function() {
+                    data.push($(this).attr('id'));
+                });
+                $.ajax({
+                    url: 'modify_permissions.php',
+                    type: 'post',
+                    dataType: 'json',
+                    data: { save_permissions : 1, permissions_data : data },
+                    success: function(res) {
+                            if (res.status) {
+                                $('#saved').text('Permissions saved').css('text-align','center');
+                            }
+                    }
+                });            
+            });
+
+            // Reload data from database on reset click
+            $('#reset_permissions').off('click').on('click', function() {
+                location.reload();
+            });
+        }
+        });                   
     }
 });

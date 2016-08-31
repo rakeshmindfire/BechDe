@@ -5,14 +5,14 @@ require_once 'libraries/session.php';
 $session = new Session;
 
 // If session not set redirect to index.php
-if ( ! $session->check_session()) {
+if ( ! $session->is_user_authorized('products', 'view')) {
     error_log_file('Unauthorized access. Session not set in search.php');
 }
 
 $db = new dbOperation;
 $result = [];
 
-if(isset($_GET['get_list']) && $_GET['get_list'] === '1') {
+if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
     $db->select('products_category');
     
     while($row = $db->fetch()) {
@@ -23,6 +23,7 @@ if(isset($_GET['get_list']) && $_GET['get_list'] === '1') {
     echo json_encode($product_list);
     
 } else if (isset($_POST['delete_id'])) {
+    
    // Check if product belongs to that user
     $db->select('products_list', ['user_id'], ['id'=>$_POST['delete_id']]);
     $res_user_id = $db->fetch();
@@ -93,5 +94,4 @@ if(isset($_GET['get_list']) && $_GET['get_list'] === '1') {
 
     echo json_encode(['status' => $total > 0, 'result' => $result, 'total' => $total,
         'products_exist' => $total_products_of_user > 0]);
-
 }

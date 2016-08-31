@@ -16,7 +16,7 @@
                     <a href="home.php"></a>
                 </li>
                  <li>
-                    <a class="" href="seller_list.php">Top Sellers</a>
+                    <a class="" href="user_list.php?user=s">Top Sellers</a>
                 </li>
                 <li>
                     <a class="" href="product_list.php">My Product List</a>
@@ -35,8 +35,8 @@
         <!-- /.navbar-collapse -->
     </div>
     <!-- /.container-fluid -->
-       
-    <div class="container nav-name"><?php echo $_SESSION['first_name'].' '.$_SESSION['middle_name'].' '.$_SESSION['last_name'];?></div>
+
+    <div class="container nav-name"><?php echo $_SESSION['name'];?></div>
 </nav>
 
 

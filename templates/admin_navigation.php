@@ -17,14 +17,16 @@
                     <a href="home.php"></a>
                 </li>
                  <li>
-                    <a class="" href="seller_list.php">Sellers</a>
-                </li>
-                
-                 <li>
-                    <a class="" href="#">Buyers</a>
+                    <a class="" href="user_list.php?user=s">Sellers</a>
                 </li>
                 <li>
-                    <a class="" href="#">All Product List</a>
+                    <a class="" href="user_list.php?user=b">Buyers</a>
+                </li>
+                <li>
+                    <a class="" href="user_list.php">All users</a>
+                </li>
+                <li>
+                    <a class="" href="product_list.php">All Product List</a>
                 </li>
                 <li>
                     <a class="" href="permissions.php">Permissions</a>
@@ -38,7 +40,7 @@
     </div>
     <!-- /.container-fluid -->
        
-    <div class="container nav-name"><?php echo $_SESSION['first_name'].' '.$_SESSION['middle_name'].' '.$_SESSION['last_name'];?></div>
+    <div class="container nav-name"><?php echo $_SESSION['name'];?></div>
 </nav>
 
 

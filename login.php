@@ -11,7 +11,9 @@ if ( ! empty($_POST)) {
   // Trim all whitespaces from string values
     $_POST = santizing($_POST);
     $error = validate_data($_POST);
-    $db->select('login', ['password', 'user_id'], ['email'=>$_POST['email'], 'is_activated'=>'1']);
+    $db->select('login l JOIN users u ON l.user_id=u.id', 
+            ['password', 'user_id','first_name','middle_name','last_name','type as role'], 
+            ['email'=>$_POST['email'], 'is_activated'=>'1']);
     $fields_validated = TRUE;
 
     // Check whether there is any error after validation
@@ -35,7 +37,9 @@ if ( ! empty($_POST)) {
             if ($db_result['password'] === md5(trim($_POST['password']))) {
                 $session->init('email', $_POST['email']);
                 $session->init('id', $db_result['user_id']);
-                header('Location: access.php');
+                $session->init('role', $db_result['role']);
+                $session->init('name', $db_result['first_name'].' '.$db_result['middle_name'].' '.$db_result['last_name']);
+                header('Location: home.php');
             
             } else {
               $error['password'] = 'Wrong password';  
@@ -56,7 +60,7 @@ if ( ! empty($_POST)) {
     </head>
     <body>
         <!-- Include the navigation bar -->
-        <?php require_once 'templates/show_nav.php'; ?>
+        <?php require_once 'templates/navigation.php'; ?>
         <div class='confirmation margin-top120'>           
             <?php
             if (isset($_GET['success'])) {

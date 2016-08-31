@@ -10,7 +10,7 @@
 
     <body >
         <!-- Include the navigation bar -->
-        <?php require_once 'templates/navigation.php'; ?>
+        <?php require_once 'templates/show_nav.php'; ?>
 
         <!-- Header -->
         <header>

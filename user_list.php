@@ -4,9 +4,25 @@ require_once 'libraries/session.php';
 
 $session = new Session; 
 
-// Get data of all the sellers
+// Get data of all the users
 $db = new dbOperation;
-$db->get_all_users(['u.type'=>'2'], ['u.id','ASC']);
+$where_user = NULL; 
+
+if ( ! isset($_GET['user']) || $_GET['user'] === 'b') {
+   
+    if ( ! $session->is_user_authorized('admin_only')) {
+        error_log_file('Unauthorized access. Session not set');
+    }  
+   
+    if (isset($_GET['user']) && $_GET['user'] === 'b') {
+        $where_user = ['u.type'=>'3'];
+    }
+    
+} else {
+    $where_user = ['u.type'=>'2'];
+}
+
+$db->get_all_users($where_user, ['u.id','ASC']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,7 +43,7 @@ $db->get_all_users(['u.type'=>'2'], ['u.id','ASC']);
             <h2>Top Sellers</h2>
             <?php if ($db->num_rows_result > 0) { ?>
                 <div class="panel-group" id="accordion">
-                    <?php while ($seller = $db->fetch()) { //print_r($seller); ?>
+                    <?php while ($seller = $db->fetch()) {  ?>
 
                         <div class="panel panel-default">
                             <div class="panel-heading">

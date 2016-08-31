@@ -16,7 +16,7 @@
                     <a href="index.php"></a>
                 </li>
                 <li>
-                    <a class="" href="seller_list.php">Top Sellers</a>
+                    <a class="" href="user_list.php?user=s">Top Sellers</a>
                 </li>
                 <li>
                     <a class="" href="sign_up.php">Register</a>

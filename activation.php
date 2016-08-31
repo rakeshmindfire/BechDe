@@ -6,7 +6,7 @@ require_once 'libraries/session.php';
 $session = new Session;
 
 // If session not set redirect to index.php
-if ( ! $session->check_session()) {
+if ( ! $session->is_user_authorized()) {
     error_log_file('Unauthorized access. Session not set in activation.php');
 }
 

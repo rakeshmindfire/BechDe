@@ -6,14 +6,9 @@ require_once 'libraries/session.php';
 $session = new Session;
 
 // If session not set redirect to index.php
-if ( ! $session->check_session()) {
+if ( ! $session->is_user_authorized()) {
      error_log_file('Unauthorized access. Session not set in home page');
 }
-
-// Get full name of user from database and add to $_SESSION
-$db = new dbOperation;
-$db->select('users', ['first_name','middle_name','last_name'], ['id'=>$_SESSION['id']]);
-$_SESSION = array_merge($_SESSION, $db->fetch());
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -34,7 +29,7 @@ $_SESSION = array_merge($_SESSION, $db->fetch());
             <div class="container">
                 <div class="intro-text">
                     <div class="intro-lead-in">Welcome To QuickSeller</div>
-                    <div class="intro-heading"><?php echo $_SESSION['first_name'].' '.$_SESSION['middle_name'].' '.$_SESSION['last_name'];?></div>
+                    <div class="intro-heading"><?php echo $_SESSION['name'];?></div>
                 </div>
             </div>
         </header>

@@ -75,7 +75,7 @@ class dbOperation {
             
             $this->query .=  $limit[0];
         } 
-
+        
         $this->query_result = mysqli_query($this->conn, $this->query);
         $this->validate_result('select'.$this->query);
         $this->num_rows_result = mysqli_num_rows($this->query_result);
@@ -90,7 +90,7 @@ class dbOperation {
      * @return void
      */
     public function get_all_users($where_clause=[], $order_by=[]) {  
-        $this->query='SELECT u.user_name,l.email,u.id,u.first_name,u.middle_name,u.last_name,u.image,u.gender,'
+        $this->query = 'SELECT u.user_name,l.email,u.id,u.first_name,u.middle_name,u.last_name,u.image,u.gender,'
             .'u.dob,u.bio AS comment,u.preferred_comm,u.mobile AS contact_num,'
             . 'uar.street AS res_addrstreet,uar.city AS res_addrcity,'
             .'u.type AS user_type,uar.state AS res_addrstate,st_uar.name AS res_addrstate_name,uar.zip AS res_addrzip,'
@@ -104,7 +104,7 @@ class dbOperation {
             .'JOIN login l ON u.id=l.user_id WHERE uar.type=1';
         
          if ($where_clause) {
-            $this->query .= ' WHERE ';
+            $this->query .= ' AND ';
             $where_keys = array_keys($where_clause);
             $where_values = array_values($where_clause);
             
@@ -122,6 +122,28 @@ class dbOperation {
         $this->query_result = mysqli_query($this->conn, $this->query);
         $this->validate_result('get_all_users');
         $this->num_rows_result = mysqli_num_rows($this->query_result);
+    }
+    
+    /**
+     * To select determined attributes of all users in the database
+     *
+     * @access public
+     * @param array $where_clause Array of key as column and corresponding value for where condition
+     * @param array $order_by Array of ordering column at index 0 and ordering type at index 1
+     * @return void
+     */
+    public function permissions_exist($role, $resource, $permission) {  
+        $this->query = 'SELECT rrp.role, re.name, p.name'
+                     . ' FROM `role_resource_permission` rrp'
+                     . ' JOIN role ro ON rrp.role = ro.id'
+                     . ' JOIN resource re ON rrp.resource = re.id'
+                     . ' JOIN permission p ON rrp.permission = p.id'
+                     . ' WHERE rrp.role=' . $role . ' AND re.name="' . $resource .'" AND p.name="' . $permission .'"';
+
+        $this->query_result = mysqli_query($this->conn, $this->query);
+        $this->validate_result('permissions_exist');
+        $this->num_rows_result = mysqli_num_rows($this->query_result);         
+        return $this->num_rows_result > 0;
     }
     
     /**
