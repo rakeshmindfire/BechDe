@@ -77,7 +77,7 @@ class dbOperation {
         } 
         
         $this->query_result = mysqli_query($this->conn, $this->query);
-        $this->validate_result('select'.$this->query);
+        $this->validate_result('select');
         $this->num_rows_result = mysqli_num_rows($this->query_result);
     }
    
@@ -245,7 +245,7 @@ class dbOperation {
     public function validate_result($type) {
      
         if ( ! $this->query_result) {
-            $this->log_db_error($type. $this->query);
+            $this->log_db_error($type.':'. $this->query);
         }
     }
     

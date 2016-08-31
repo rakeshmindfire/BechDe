@@ -8,6 +8,7 @@ $session = new Session;
 if ( ! $session->is_user_authorized('products', 'view')) {
     error_log_file('Unauthorized access. Session not set in search.php');
 }
+$is_admin = $_SESSION['role'] === '1' ? TRUE: FALSE;
 
 $db = new dbOperation;
 $result = [];
@@ -53,7 +54,7 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
     
     // Get total products present in the user account
     $total_products_of_user = 0;
-    $db->select('products_list pl',['count(*) AS total_products_of_user'], ['pl.user_id' => $_SESSION['id']]);
+    $db->select('products_list pl',['COUNT(*) AS total_products_of_user'], $is_admin ? []: ['pl.user_id' => $_SESSION['id']]);
     
     while($row = $db->fetch()) {
         $total_products_of_user = $row['total_products_of_user'];
@@ -67,16 +68,17 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
         $where_clause['pc.id'] = $_POST['id'];
     }
     
-    // Fetch count of total number of products
-    $db->select('products_list pl JOIN products_category pc ON pl.category=pc.id AND pl.user_id='.$_SESSION['id'],
-            ['count(*) AS total'], $where_clause);
+    $table = 'products_list pl JOIN products_category pc ON pl.category=pc.id '
+            . ($is_admin ? '': 'AND pl.user_id='.$_SESSION['id']) ;
+    
+    // Get count of total number of products based on filter criteria
+    $db->select($table, ['COUNT(*) AS total'], $where_clause);
     
     while($row = $db->fetch()) {
         $total = $row['total'];
     }
 
     // Set parameters for fetching data
-    $table = 'products_list pl JOIN products_category pc ON pl.category=pc.id AND pl.user_id='.$_SESSION['id'] ;
     $attr_list = ['pl.id', 'pc.name as category_name', 'pl.image', 'pl.name as product_name',
         'pl.amount', 'pl.description', 'pl.created_date'];
     $where = $_POST['id']==='0' ? NULL : ['pc.id'=>$_POST['id']];
