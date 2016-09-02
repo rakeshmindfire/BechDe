@@ -76,7 +76,7 @@ function show_modal(del_id) {
  * @return void 
  */
 function show_image_modal() {
-    var img_src = $(this).attr('src');  
+    var img_src = $(this).attr('src');  console.log(img_src);
     $('#zoomed_image').attr('src',img_src);
     $('#myModalImage').modal('show');
 }
@@ -185,6 +185,7 @@ function fetch_products(arg) {
                     + '<td>' + result[i].product_name + '</td>' 
                     + '<td>' + result[i].amount + '</td>' 
                     + '<td>' + result[i].description + '</td>' 
+                    + ((user_role === 1) ? ('<td>' + result[i].name + '</td>') : '' )
                     + '<td>' + result[i].created_date + '</td>' 
                     + '<td><a onclick=\'window.location="product_register.php?update_id=' + result[i].id + '";\'' 
                     + 'class="glyphicon glyphicon-pencil color-edit modify-icons"></a>&nbsp;' 
@@ -227,7 +228,7 @@ function fetch_products(arg) {
             }
             $('#loader_image').addClass('hide');
         }
-    })
+    });
 }
 
 /**
@@ -355,7 +356,8 @@ $(document).ready(function() {
                     data: { save_permissions : 1, permissions_data : data },
                     success: function(res) {
                             if (res.status) {
-                                $('#saved').text('Permissions saved').css('text-align','center');
+                                $("#saved").removeClass('hide');
+                                setTimeout(function() { $("#saved").addClass('hide'); }, 2000);
                             }
                     }
                 });            
@@ -368,4 +370,100 @@ $(document).ready(function() {
         }
         });                   
     }
+    
+    // Create dataTables for Product deals page
+    if (location.pathname.substring(1) === "product_deals.php") {
+                
+        $.ajax({
+        url: 'search.php',
+        type: 'post',
+        dataType: 'json',
+        data: { id : 0,
+                order_in : last_type,
+                status: 1,
+                start_row : 1,
+                no_of_rows : 200
+              },
+        success: function(res) {
+//            console.log(res);
+                display_data(res.result);
+        }
+        });
+    }
 });
+
+function display_data(response) {
+    var total_rows = response.length;
+    var data_table = $('#deals').dataTable({
+        "bRetrieve": true,
+        "aoColumns": [ 
+            null,
+            null,
+            { "bSortable": false },
+            null,
+            null,
+            null,
+            { "bSortable": false }
+        ] });
+    data_table.fnClearTable();
+
+    var img_modal = '';
+    var action_buttons = '';
+    if (0 < total_rows) {
+    
+        for (var i = 0; i < total_rows; i++) {
+            img_modal = '<img src="img/product/' + response[i]['image'] + '" class="product-image">' ;
+            action_buttons = '<a class="btn btn-link col-sm-4" href="purchase.php?product='+ response[i].id +'">Buy</a>'
+                + '<a class="btn btn-link col-sm-8 seller_details" data-seller="' + response[i].seller_id +' ">Seller Info</a>';
+            row = [response[i]['product_name'],
+                response[i]['category_name'],
+                img_modal,
+                response[i]['amount'],
+                response[i]['description'],
+                response[i]['created_date'],
+                action_buttons
+            ];
+
+            data_table.fnAddData(row, false);
+        }
+        
+
+    data_table.fnDraw();
+    }
+    
+    $('.product-image').on('click', show_image_modal);
+    $('.seller_details').on('click', show_seller_profile);
+    
+}
+
+function show_seller_profile () {
+        var seller_id = $(this).data('seller');
+         console.log(seller_id);
+         
+        $.ajax({
+            url: 'search.php',
+            type: 'post',
+            dataType: 'json',
+            data: { get_user : seller_id },
+            success: function(res) {
+                
+                var seller_data = res.result;
+                var seller_address = seller_data.ofc_addrstreet + ', ' 
+                    + seller_data.ofc_addrcity + ', ' + seller_data.ofc_addrstate_name
+                    + ', ' +  seller_data.ofc_addrzip ;
+                $('#seller_image').attr('src',seller_data.image === null ? no_image : 'img/product/' + seller_data.image);
+                $('#seller_name').text(seller_data.user_name);
+                $('#seller_sex').text(seller_data.gender === 'M' ? 'Male': 'Female');
+                $('#seller_dob').text(seller_data.dob);
+                $('#seller_mob').text(seller_data.contact_num);
+                $('#seller_bio').text(seller_data.comment);
+                $('#seller_prefcomm').text(seller_data.preferred_comm);
+                $('#seller_addr').text(seller_address.indexOf('null')>=0 ? 'N/A': seller_address);
+                $('#seller_email').text(seller_data.email);
+                $('#seller_info_modal').modal('show');    
+            }
+        });
+         
+
+    
+}

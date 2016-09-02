@@ -16,3 +16,7 @@
 
 <!-- Bootstrap Core JavaScript -->
 <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<!-- Datatables JavaScript -->
+<script type="text/javascript" charset="utf8" 
+src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>

@@ -14,10 +14,15 @@ if( ! isset($_SESSION['role'])) {
             $nav = 'templates/seller_navigation.php';
             break;
         
+        case '3':
+            $nav = 'templates/buyer_navigation.php';
+            break;
+        
         default:
             $nav = 'templates/navigation.php';
             break;
     }
 }
+
 require_once $nav;
 ?>

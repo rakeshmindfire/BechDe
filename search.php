@@ -4,11 +4,22 @@ require_once 'libraries/session.php';
 
 $session = new Session;
 
+if (isset($_POST['delete_id'])) {
+    $action = 'delete';
+
+} else if (isset($_POST['change_id'])) {
+    $action = 'edit';
+
+} else {
+    $action = 'view';
+} 
+
 // If session not set redirect to index.php
-if ( ! $session->is_user_authorized('products', 'view')) {
-    error_log_file('Unauthorized access. Session not set in search.php');
+if ( ! $session->is_user_authorized(TRUE, 'products', $action)) {
+    error_log_file('Unauthorized access.');
 }
-$is_admin = $_SESSION['role'] === '1' ? TRUE: FALSE;
+
+$is_admin_or_buyer = ($_SESSION['role'] === '1' || $_SESSION['role'] === '3') ? TRUE: FALSE;
 
 $db = new dbOperation;
 $result = [];
@@ -49,12 +60,18 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
 
 } else if (isset($_POST['change_id'])) {
     $db->insert_or_update(2, 'products_list', ['is_active'=> ($_POST['status']+1)%2], ['id'=>$_POST['change_id']]);
-   
+     unset ($_POST['change_id']);
+
+} else if (isset($_POST['get_user'])) {
+    $db->get_all_users(['u.id'=>$_POST['get_user']]);
+    echo json_encode(['status' => 1, 'result' => $db->fetch()]);
+    unset ($_POST['get_user']);
+
 } else {
     
     // Get total products present in the user account
     $total_products_of_user = 0;
-    $db->select('products_list pl',['COUNT(*) AS total_products_of_user'], $is_admin ? []: ['pl.user_id' => $_SESSION['id']]);
+    $db->select('products_list pl',['COUNT(*) AS total_products_of_user'], $is_admin_or_buyer ? []: ['pl.user_id' => $_SESSION['id']]);
     
     while($row = $db->fetch()) {
         $total_products_of_user = $row['total_products_of_user'];
@@ -68,8 +85,9 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
         $where_clause['pc.id'] = $_POST['id'];
     }
     
-    $table = 'products_list pl JOIN products_category pc ON pl.category=pc.id '
-            . ($is_admin ? '': 'AND pl.user_id='.$_SESSION['id']) ;
+    $table = 'products_list pl JOIN users u ON u.id=pl.user_id JOIN products_category pc ON pl.category=pc.id '
+            . ($is_admin_or_buyer ? '': 'AND pl.user_id='.$_SESSION['id']) ;
+            
     
     // Get count of total number of products based on filter criteria
     $db->select($table, ['COUNT(*) AS total'], $where_clause);
@@ -80,7 +98,8 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
 
     // Set parameters for fetching data
     $attr_list = ['pl.id', 'pc.name as category_name', 'pl.image', 'pl.name as product_name',
-        'pl.amount', 'pl.description', 'pl.created_date'];
+        'pl.amount', 'pl.description', 'pl.created_date',
+        'CONCAT(u.first_name,\' \',u.middle_name,\' \',u.last_name) as name', 'u.id as seller_id'];
     $where = $_POST['id']==='0' ? NULL : ['pc.id'=>$_POST['id']];
     $order =  $_POST['order_in'] === '1' ? ['pl.created_date', 'DESC'] :
         ($_POST['order_in'] === '2' ? ['pl.amount', 'ASC'] : ['pl.amount', 'DESC']);
@@ -96,4 +115,5 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
 
     echo json_encode(['status' => $total > 0, 'result' => $result, 'total' => $total,
         'products_exist' => $total_products_of_user > 0]);
+
 }

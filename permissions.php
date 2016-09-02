@@ -6,7 +6,7 @@ require_once 'libraries/session.php';
 $session = new Session;
 
 // If session not set redirect to index.php
-if ( ! $session->is_user_authorized('admin_only')) {
+if ( ! $session->is_user_authorized(FALSE)) {
     error_log_file('Unauthorized access. Session not set');
 }
 
@@ -37,7 +37,7 @@ require_once 'templates/header.php';
             <div class="form-group" id="permissions_div"></div>
                     
                     <div class="form-group">
-                        <div class=" col-sm-9"><p class="bg-success" id="saved"></p></div>
+                        <div class=" col-sm-9"><p class="bg-success hide" id="saved">Permissions saved</p></div>
                         <div class=" col-sm-1">
                             <button class="btn btn-default btn-lg btn-success" id="submit_permissions">Submit</button>
                         </div>

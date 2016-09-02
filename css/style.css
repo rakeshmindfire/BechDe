@@ -123,3 +123,14 @@ table {
 .capitalize {
     text-transform: capitalize;
 }
+
+#danger {
+    color:red;
+    padding-left: 300px;
+    font-size: 2em;
+}
+
+#saved {
+    text-align: center;
+    font-weight: bold;
+}

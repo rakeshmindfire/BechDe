@@ -7,7 +7,7 @@ $session = new Session;
 
 // If session not set redirect to index.php
 if ( ! $session->is_user_authorized()) {
-     error_log_file('Unauthorized access. Session not set in home page');
+     error_log_file('Unauthorized access.');
 }
 ?>
 <!DOCTYPE html>

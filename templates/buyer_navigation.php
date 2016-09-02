@@ -1,3 +1,4 @@
+
 <!-- Navigation -->
 <nav id="main-nav" class="navbar navbar-default navbar-custom navbar-fixed-top">
     <div class="container">
@@ -16,16 +17,16 @@
                     <a href="home.php"></a>
                 </li>
                  <li>
-                    <a class="" href="user_list.php?user=s">Top Sellers</a>
+                    <a class="" href="user_list.php?user=s">Sellers</a>
                 </li>
                 <li>
-                    <a class="" href="product_list.php">My Product List</a>
+                    <a class="" href="product_deals.php">Deals</a>
+                </li>
+                <li>
+                    <a class="" href="#">Cart</a>
                 </li>
                 <li>
                     <a class="" href="my_profile.php">My Profile</a>
-                </li>
-                <li>
-                    <a class="" href="product_register.php">SELL NOW!</a>
                 </li>
                 <li>
                     <a class="" href="logout.php">Log out</a>
@@ -35,8 +36,8 @@
         <!-- /.navbar-collapse -->
     </div>
     <!-- /.container-fluid -->
-
-    <div class="container nav-name"><?php echo 'Welcome '.$_SESSION['name'].' <' .$_SESSION['role'] . '>';?></div>
+       
+    <div class="container nav-name"><?php echo $_SESSION['name'];?></div>
 </nav>
 
 

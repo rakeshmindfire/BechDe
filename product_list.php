@@ -6,7 +6,7 @@ require_once 'libraries/session.php';
 $session = new Session;
 
 // If session not set redirect to index.php
-if ( ! $session->is_user_authorized('products','view')) {
+if ( ! $session->is_user_authorized(TRUE, 'products', 'view')) {
     error_log_file('Unauthorized access. Session not set');
 }
 
@@ -71,7 +71,10 @@ if (isset($_GET['success'])) {
                                 <a class="glyphicon glyphicon-chevron-down" id="sorting-arrow-down"></a>
                             </th>
                             <th>Description</th>
-                            <th>Uploaded on</th>
+                            <?php 
+                            echo isset($_SESSION['role']) && $_SESSION['role']==='1' ? '<th>Seller</th>':'';
+                            ?>
+                            <th>Uploaded on</th>                            
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -119,6 +122,7 @@ if (isset($_GET['success'])) {
         </div>
         <script type="text/javascript">
             var page_size = <?php echo PER_PAGE_RECORD; ?>;
+            var user_role = <?php echo $_SESSION['role']; ?>
         </script>
         <?php require_once 'templates/footer.php'; ?>
     </body>

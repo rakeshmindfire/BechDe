@@ -6,7 +6,7 @@ require_once 'libraries/session.php';
 $session = new Session;
 
 // If session not set redirect to index.php
-if ( ! $session->is_user_authorized('admin_only')) {
+if ( ! $session->is_user_authorized(FALSE)) {
     error_log_file('Unauthorized access.');
 }
 

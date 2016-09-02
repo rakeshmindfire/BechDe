@@ -44,7 +44,7 @@ class Session {
      * @access public
      * @return boolean
      */
-    public function is_user_authorized($resource = '', $perm = '') {
+    public function is_user_authorized($is_user_only=TRUE, $resource = '', $perm = '') {
         $access = FALSE;
 
         if ($this->validate_session()) {
@@ -52,7 +52,7 @@ class Session {
             if ($_SESSION['role'] === '1') {
                 $access = TRUE;
             
-            } else if (empty($resource) && empty($perm)) {
+            } else if (empty($resource) && empty($perm) && $is_user_only) {
                 $access = TRUE;
                 
             } else {

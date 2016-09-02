@@ -10,17 +10,20 @@ $where_user = NULL;
 
 if ( ! isset($_GET['user']) || $_GET['user'] === 'b') {
    
-    if ( ! $session->is_user_authorized('admin_only')) {
-        error_log_file('Unauthorized access. Session not set');
+    if ( ! $session->is_user_authorized(FALSE)) {
+        error_log_file('Unauthorized access.');
     }  
    
     if (isset($_GET['user']) && $_GET['user'] === 'b') {
         $where_user = ['u.type'=>'3'];
     }
     
-} else {
+} else if ( $_GET['user'] === 's') {
     $where_user = ['u.type'=>'2'];
-}
+    
+} else {
+     error_log_file('Wrong URL');
+} 
 
 $db->get_all_users($where_user, ['u.id','ASC']);
 ?>
@@ -40,7 +43,7 @@ $db->get_all_users($where_user, ['u.id','ASC']);
         
         <div class='confirmation margin-top120'> </div>
         <div class="container">
-            <h2>Top Sellers</h2>
+<!--            <h2><?php //echo !isset($_GET['user']) ? 'All users' :($_GET()'Top Sellers';?></h2>-->
             <?php if ($db->num_rows_result > 0) { ?>
                 <div class="panel-group" id="accordion">
                     <?php while ($seller = $db->fetch()) {  ?>

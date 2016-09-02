@@ -12,6 +12,9 @@
 <link href='https://fonts.googleapis.com/css?family=Sansita+One' rel='stylesheet' type='text/css'>
 <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
 
+<!--Datatables CSS-->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+
 <!-- Theme CSS -->
 <link href="css/theme.css" rel="stylesheet">
 <link href="css/style.css" rel="stylesheet">

@@ -7,8 +7,10 @@ require_once 'libraries/session.php';
 $db = new dbOperation;
 $session = new Session;
 
+$action = isset($_GET['update_id']) ? 'edit' : 'add'; 
+
 // If session not set redirect to index.php
-if ( ! $session->is_user_authorized('products','edit')) {
+if ( ! $session->is_user_authorized(TRUE, 'products', $action)) {
     error_log_file('Unauthorized access. Session not set in product register page');
 }
 
