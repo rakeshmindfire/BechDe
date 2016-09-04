@@ -385,12 +385,48 @@ $(document).ready(function() {
                 no_of_rows : 200
               },
         success: function(res) {
-//            console.log(res);
+            console.log(res);
                 display_data(res.result);
         }
         });
     }
-});
+    
+        // Fetch product details in purchase page
+    if (location.pathname.substring(1) === "purchase.php") {
+                
+        $.ajax({
+        url: 'search.php',
+        type: 'post',
+        dataType: 'json',
+        data: { get_product: product_id },
+        success: function(res) {
+            var product = res.result;
+            $('#item_name').text(product.product_name);
+            $('#item_category').text(product.category_name);
+            $('#item_description').text(product.description);
+            $('#item_price, #bill').text(product.amount);
+            $('#item_uploadedon').text(product.created_date);
+            $('#item_seller').text(product.seller_name);
+            $('#item_image').attr('src','img/product/' + product.image);
+            $('#seller_info').data('seller',product.seller_id).on('click', show_seller_profile);
+            }
+        });
+
+        $('#confirm_purchase').on('click',function(){
+            $.ajax({
+                url: 'search.php',
+                type: 'post',
+                dataType: 'json',
+                data: { purchase_id : product_id },
+                success: function(res) {
+                    console.log('asdwad');
+                    window.location = 'payment_success.php';
+                }
+            });
+        });
+        
+    }
+})
 
 function display_data(response) {
     var total_rows = response.length;
@@ -451,7 +487,8 @@ function show_seller_profile () {
                 var seller_address = seller_data.ofc_addrstreet + ', ' 
                     + seller_data.ofc_addrcity + ', ' + seller_data.ofc_addrstate_name
                     + ', ' +  seller_data.ofc_addrzip ;
-                $('#seller_image').attr('src',seller_data.image === null ? no_image : 'img/product/' + seller_data.image);
+        
+                $('#seller_image').attr('src',seller_data.image === null ? no_image : 'img/profile/' + seller_data.image);
                 $('#seller_name').text(seller_data.user_name);
                 $('#seller_sex').text(seller_data.gender === 'M' ? 'Male': 'Female');
                 $('#seller_dob').text(seller_data.dob);
@@ -462,8 +499,5 @@ function show_seller_profile () {
                 $('#seller_email').text(seller_data.email);
                 $('#seller_info_modal').modal('show');    
             }
-        });
-         
-
-    
+        });    
 }

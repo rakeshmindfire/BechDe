@@ -62,16 +62,32 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
     $db->insert_or_update(2, 'products_list', ['is_active'=> ($_POST['status']+1)%2], ['id'=>$_POST['change_id']]);
      unset ($_POST['change_id']);
 
+} else if (isset($_POST['purchase_id'])) {
+    $db->insert_or_update(2, 'products_list', ['is_active'=> 0, 'is_avail' => 0], ['id'=>$_POST['purchase_id']]);
+     unset ($_POST['purchase_id']);
+     echo json_encode(['status' => 1]);
+    
 } else if (isset($_POST['get_user'])) {
     $db->get_all_users(['u.id'=>$_POST['get_user']]);
     echo json_encode(['status' => 1, 'result' => $db->fetch()]);
     unset ($_POST['get_user']);
 
+} else if (isset($_POST['get_product'])) {
+    $table = 'products_list pl JOIN users u ON u.id=pl.user_id JOIN products_category pc ON pl.category=pc.id ' ;
+   $attr_list = ['pl.id', 'pc.name as category_name', 'pl.image', 'pl.name as product_name',
+        'pl.amount', 'pl.description', 'pl.created_date',
+        'CONCAT(u.first_name,\' \',u.middle_name,\' \',u.last_name) as seller_name', 'u.id as seller_id'];
+    $where = ['pl.id' => $_POST['get_product']];
+    $db->select($table, $attr_list, $where);
+    echo json_encode(['status' => 1, 'result' => $db->fetch()]);
+    unset ($_POST['get_product']);
+    
 } else {
     
     // Get total products present in the user account
     $total_products_of_user = 0;
-    $db->select('products_list pl',['COUNT(*) AS total_products_of_user'], $is_admin_or_buyer ? []: ['pl.user_id' => $_SESSION['id']]);
+    $db->select('products_list pl',['COUNT(*) AS total_products_of_user'],
+            $is_admin_or_buyer ? []: ['pl.user_id' => $_SESSION['id']]);
     
     while($row = $db->fetch()) {
         $total_products_of_user = $row['total_products_of_user'];
@@ -79,9 +95,10 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
     
     $total = 0;
     // Get total records
+    
     $where_clause = ['is_active'=>$_POST['status']];
     
-    if ( $_POST['id'] !=='0') {
+    if ( isset($_POST['id']) && $_POST['id'] !=='0') {
         $where_clause['pc.id'] = $_POST['id'];
     }
     
@@ -115,5 +132,4 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
 
     echo json_encode(['status' => $total > 0, 'result' => $result, 'total' => $total,
         'products_exist' => $total_products_of_user > 0]);
-
 }
