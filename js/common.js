@@ -188,10 +188,12 @@ function fetch_products(arg) {
                     + ((user_role === 1) ? ('<td>' + result[i].name + '</td>') : '' )
                     + '<td>' + result[i].created_date + '</td>' 
                     + '<td><a onclick=\'window.location="product_register.php?update_id=' + result[i].id + '";\'' 
-                    + 'class="glyphicon glyphicon-pencil color-edit modify-icons"></a>&nbsp;' 
-                    + '<a class="glyphicon glyphicon-remove color-remove modify-icons" onclick="show_modal('+ result[i].id +')" data-id=' + result[i].id +'></a>' 
+                    + 'class="glyphicon glyphicon-pencil color-edit modify-icons" data-toggle="tooltip" data-placement="top" title="Edit Item"></a>&nbsp;' 
+                    + '<a class="glyphicon glyphicon-remove color-remove modify-icons" onclick="show_modal('+ result[i].id +')" data-id=' + result[i].id 
+                    +'data-toggle="tooltip" data-placement="top" title="Delete Item"></a>' 
                     + '<a class="glyphicon modify-icons '+ (status_arg === 1 ? 'glyphicon-minus' : 'glyphicon-ok') +'"' 
-                    + 'onclick="change_status('+ result[i].id +')"></a>' 
+                    + 'onclick="change_status('+ result[i].id +')" data-toggle="tooltip" data-placement="top" title="'
+                    + (status_arg === 1 ? 'Deactivate' : 'Activate') +' Item "></a>' 
                     + '</td>' 
                     + '</tr>';
                 }
@@ -239,27 +241,29 @@ function fetch_products(arg) {
  * @return void 
  */
 $(document).ready(function() {
-    $('#search_button').on('click',{ type: 1, start: 1, preserve_page: false }, fetch_products);
-    $('#sorting-arrow-up').on('click', { type: 2, preserve_page: true }, fetch_products);
-    $('#sorting-arrow-down').on('click', { type: 3, preserve_page: true }, fetch_products);
-    $('#status_tab li ').off('click')
-        .on('click', 'a', function () {
-            $('#status_tab li').removeClass('active');
-            $(this).closest('li').addClass('active');                       
-            var obj = {
-                data : { status:$(this).data('value') ,start: 1, preserve_page:false }
-            };
-            fetch_products(obj);
-        }); 
-
-    var cur_page = window.location.href;
-    $(':reset').on('click',function() {
-         window.location = cur_page;
-    }); 
-    
+   
     
     // List all products in category in product list page
-    if (location.pathname.substring(1) === "product_list.php") {
+    if (location.pathname.substring(1) === "product_list.php") {      
+        //
+            $('#search_button').on('click',{ type: 1, start: 1, preserve_page: false }, fetch_products);
+            $('#sorting-arrow-up').on('click', { type: 2, preserve_page: true }, fetch_products);
+            $('#sorting-arrow-down').on('click', { type: 3, preserve_page: true }, fetch_products);
+            $('#status_tab li ').off('click')
+                .on('click', 'a', function () {
+                    $('#status_tab li').removeClass('active');
+                    $(this).closest('li').addClass('active');                       
+                    var obj = {
+                        data : { status:$(this).data('value') ,start: 1, preserve_page:false }
+                    };
+                    fetch_products(obj);
+                }); 
+
+            var cur_page = window.location.href;
+            $(':reset').on('click',function() {
+                 window.location = cur_page;
+            }); 
+        //
         $.ajax({
         url: 'search.php?get_list=1',
         type: 'get',
@@ -386,10 +390,26 @@ $(document).ready(function() {
               },
         success: function(res) {
             console.log(res);
-                display_data(res.result);
+                display_data(res.result, false);
         }
         });
     }
+    
+    // Create dataTables for history page
+    if (location.pathname.substring(1) === "history.php") {
+                
+        $.ajax({
+        url: 'search.php',
+        type: 'post',
+        dataType: 'json',
+        data: { is_history: 1 },
+        success: function(res) {
+            console.log(res);
+                display_data(res.result, true);
+        }
+        });
+    }
+    
     
         // Fetch product details in purchase page
     if (location.pathname.substring(1) === "purchase.php") {
@@ -419,7 +439,7 @@ $(document).ready(function() {
                 dataType: 'json',
                 data: { purchase_id : product_id },
                 success: function(res) {
-                    console.log('asdwad');
+
                     window.location = 'payment_success.php';
                 }
             });
@@ -428,19 +448,26 @@ $(document).ready(function() {
     }
 })
 
-function display_data(response) {
+function display_data(response, is_history_page) {
     var total_rows = response.length;
-    var data_table = $('#deals').dataTable({
-        "bRetrieve": true,
-        "aoColumns": [ 
+    var aoColdef = [ 
             null,
             null,
             { "bSortable": false },
             null,
             null,
             null,
-            { "bSortable": false }
-        ] });
+            { "bSortable": is_history_page ? true : false },
+        ];
+    
+    if(is_history_page) {
+        aoColdef.push({ "bSortable": false });
+    }    
+        
+    var data_table = $('#deals').dataTable({
+        "bRetrieve": true,
+        "aoColumns": aoColdef
+    });
     data_table.fnClearTable();
 
     var img_modal = '';
@@ -449,17 +476,24 @@ function display_data(response) {
     
         for (var i = 0; i < total_rows; i++) {
             img_modal = '<img src="img/product/' + response[i]['image'] + '" class="product-image">' ;
-            action_buttons = '<a class="btn btn-link col-sm-4" href="purchase.php?product='+ response[i].id +'">Buy</a>'
-                + '<a class="btn btn-link col-sm-8 seller_details" data-seller="' + response[i].seller_id +' ">Seller Info</a>';
+            
+            action_buttons = '<a class="btn btn-link col-sm-8 seller_details" data-seller="' + response[i].seller_id +' ">Seller Info</a>';
+            action_buttons += ! is_history_page ? '<a class="btn btn-link col-sm-4" href="purchase.php?product='+ response[i].id +'">Buy</a>' : '';
+            
             row = [response[i]['product_name'],
                 response[i]['category_name'],
                 img_modal,
                 response[i]['amount'],
                 response[i]['description'],
-                response[i]['created_date'],
-                action_buttons
+                response[i]['created_date']
             ];
-
+            
+            if (is_history_page) {
+                row.push(response[i].purchase_date);
+            }
+            
+            row.push(action_buttons);
+            console.log(row);
             data_table.fnAddData(row, false);
         }
         

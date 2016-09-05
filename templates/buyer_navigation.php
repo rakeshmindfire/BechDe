@@ -26,6 +26,9 @@
                     <a class="" href="#">Cart</a>
                 </li>
                 <li>
+                    <a class="" href="history.php">History</a>
+                </li>
+                <li>
                     <a class="" href="my_profile.php">My Profile</a>
                 </li>
                 <li>

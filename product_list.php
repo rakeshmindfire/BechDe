@@ -57,6 +57,7 @@ if (isset($_GET['success'])) {
                 <ul class="nav nav-tabs" id="status_tab">
                   <li class="active"><a href="#" data-value="1">Active</a></li>
                   <li><a href="#" data-value="0">Inactive</a></li>
+                  <li><a href="#" data-value="3">Sold</a></li>
                 </ul>
             </div>
             <div class="clearfix"></div>

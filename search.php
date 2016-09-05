@@ -63,7 +63,9 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
      unset ($_POST['change_id']);
 
 } else if (isset($_POST['purchase_id'])) {
-    $db->insert_or_update(2, 'products_list', ['is_active'=> 0, 'is_avail' => 0], ['id'=>$_POST['purchase_id']]);
+    $db->insert_or_update(2, 'products_list', ['is_active'=> 0, 'is_avail' => 0], ['id'=> $_POST['purchase_id']]);
+    $db->insert_or_update(1, 'purchased', ['buyer_id'=> $_SESSION['id'], 'product_id' => $_POST['purchase_id']],
+            ['id'=>$_POST['purchase_id']]);
      unset ($_POST['purchase_id']);
      echo json_encode(['status' => 1]);
     
@@ -74,14 +76,31 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
 
 } else if (isset($_POST['get_product'])) {
     $table = 'products_list pl JOIN users u ON u.id=pl.user_id JOIN products_category pc ON pl.category=pc.id ' ;
-   $attr_list = ['pl.id', 'pc.name as category_name', 'pl.image', 'pl.name as product_name',
+   $attr_list = ['pl.id', 'pc.name AS category_name', 'pl.image', 'pl.name AS product_name',
         'pl.amount', 'pl.description', 'pl.created_date',
-        'CONCAT(u.first_name,\' \',u.middle_name,\' \',u.last_name) as seller_name', 'u.id as seller_id'];
+        'CONCAT(u.first_name,\' \',u.middle_name,\' \',u.last_name) AS seller_name', 'u.id AS seller_id'];
     $where = ['pl.id' => $_POST['get_product']];
     $db->select($table, $attr_list, $where);
     echo json_encode(['status' => 1, 'result' => $db->fetch()]);
     unset ($_POST['get_product']);
+
+} else if (isset($_POST['is_history'])) {
+    $table = 'purchased pd JOIN products_list pl ON pl.id=pd.product_id JOIN users u ON u.id=pl.user_id'
+        . ' JOIN products_category pc ON pc.id=pl.category';
+    $attr_list = ['pl.id', 'pc.name AS category_name', 'pl.image', 'pl.name AS product_name',
+        'pl.amount', 'pl.description', 'pl.created_date',
+        'CONCAT(u.first_name,\' \',u.middle_name,\' \',u.last_name) AS seller_name', 'u.id AS seller_id',
+        'pd.created_date AS purchase_date'];
+    $where = ['pd.buyer_id' => $_SESSION['id']];
+    $db->select($table, $attr_list, $where);
     
+     while($row = $db->fetch()) {
+        $result[] = $row;
+    }
+    
+    echo json_encode(['status' => 1, 'result' => $result]);
+    unset ($_POST['is_history']);
+
 } else {
     
     // Get total products present in the user account
@@ -114,9 +133,9 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
     }
 
     // Set parameters for fetching data
-    $attr_list = ['pl.id', 'pc.name as category_name', 'pl.image', 'pl.name as product_name',
+    $attr_list = ['pl.id', 'pc.name AS category_name', 'pl.image', 'pl.name AS product_name',
         'pl.amount', 'pl.description', 'pl.created_date',
-        'CONCAT(u.first_name,\' \',u.middle_name,\' \',u.last_name) as name', 'u.id as seller_id'];
+        'CONCAT(u.first_name,\' \',u.middle_name,\' \',u.last_name) AS name', 'u.id AS seller_id'];
     $where = $_POST['id']==='0' ? NULL : ['pc.id'=>$_POST['id']];
     $order =  $_POST['order_in'] === '1' ? ['pl.created_date', 'DESC'] :
         ($_POST['order_in'] === '2' ? ['pl.amount', 'ASC'] : ['pl.amount', 'DESC']);
