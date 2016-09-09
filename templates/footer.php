@@ -12,6 +12,7 @@
 </footer>
 <!-- jQuery -->
 <script src="vendor/jquery/jquery.min.js"></script>
+<script src="libraries/cart.js"></script>
 <script src="js/common.js"></script>
 
 <!-- Bootstrap Core JavaScript -->

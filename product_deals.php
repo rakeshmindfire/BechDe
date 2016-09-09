@@ -27,7 +27,9 @@ require_once 'templates/header.php';
     <div class="confirmation margin-top120" id="confirm_message">
         </div>
         <div class="container">
-            <table id="deals">
+            <h3 class="col-md-10">Deals of the day</h3>
+            <a type="button" class="btn btn-lg pull-right btn-primary" id="checkout_button" href="purchase.php">CHECKOUT</a>
+            <table id="deals" class="cell-border">
                 <thead>
                  <tr>
                     <th>Name</th>
@@ -42,7 +44,7 @@ require_once 'templates/header.php';
             </table>
         </div>
         <!--Modal for Image zoom-->
-        <div id="myModalImage" class="modal fade" role="dialog">
+        <div id="my_modal_image" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-body" >
                     <img class="img-thumbnail" class="show-zoomed" id="zoomed_image">
@@ -98,12 +100,12 @@ require_once 'templates/header.php';
             </div>
             </div>
         </div>
-                
         
         <script type="text/javascript">
             var page_size = <?php echo PER_PAGE_RECORD; ?>;
             var user_role = <?php echo $_SESSION['role']; ?>;
             var no_image = "<?php echo NOIMAGE; ?>";
+               
         </script>
         <?php require_once 'templates/footer.php'; ?>
     </body>

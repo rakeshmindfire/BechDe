@@ -78,7 +78,7 @@ function show_modal(del_id) {
 function show_image_modal() {
     var img_src = $(this).attr('src');  console.log(img_src);
     $('#zoomed_image').attr('src',img_src);
-    $('#myModalImage').modal('show');
+    $('#my_modal_image').modal('show');
 }
 
 /**
@@ -187,21 +187,33 @@ function fetch_products(arg) {
                     + '<td>' + result[i].description + '</td>' 
                     + ((user_role === 1) ? ('<td>' + result[i].name + '</td>') : '' )
                     + '<td>' + result[i].created_date + '</td>' 
-                    + '<td><a onclick=\'window.location="product_register.php?update_id=' + result[i].id + '";\'' 
-                    + 'class="glyphicon glyphicon-pencil color-edit modify-icons" data-toggle="tooltip" data-placement="top" title="Edit Item"></a>&nbsp;' 
-                    + '<a class="glyphicon glyphicon-remove color-remove modify-icons" onclick="show_modal('+ result[i].id +')" data-id=' + result[i].id 
-                    +'data-toggle="tooltip" data-placement="top" title="Delete Item"></a>' 
-                    + '<a class="glyphicon modify-icons '+ (status_arg === 1 ? 'glyphicon-minus' : 'glyphicon-ok') +'"' 
-                    + 'onclick="change_status('+ result[i].id +')" data-toggle="tooltip" data-placement="top" title="'
-                    + (status_arg === 1 ? 'Deactivate' : 'Activate') +' Item "></a>' 
-                    + '</td>' 
-                    + '</tr>';
+                    + '<td>';
+            
+                    if (status_arg === 3) {
+                        table_body += 'SOLD <br> '
+                            +'<a type="button" class="btn btn-info" onclick="show_buyer_profile('+ result[i].id +')"' 
+                            + '>Buyer Info</a>';
+                    
+                    } else {
+                    
+                        table_body += '<a onclick=\'window.location="product_register.php?update_id=' + result[i].id + '";\'' 
+                        + 'class="glyphicon glyphicon-pencil color-edit modify-icons" data-toggle="tooltip" data-placement="top" title="Edit Item"></a>&nbsp;' 
+                        + '<a class="glyphicon glyphicon-remove color-remove modify-icons" onclick="show_modal('+ result[i].id +')" data-id=' + result[i].id 
+                        +'data-toggle="tooltip" data-placement="top" title="Delete Item"></a>' 
+                        + '<a class="glyphicon modify-icons '+ (status_arg === 1 ? 'glyphicon-minus' : 'glyphicon-ok') +'"' 
+                        + 'onclick="change_status('+ result[i].id +')" data-toggle="tooltip" data-placement="top" title="'
+                        + (status_arg === 1 ? 'Deactivate' : 'Activate') +' Item "></a>' ;
+                     }
+            
+                    table_body += '</td></tr>';
                 }
+ 
 
                 $('#products_table tbody').html(table_body);
                 $('#products_table').removeClass('hide');
 
                 $('.product-image').on('click', show_image_modal);
+                               
                 
                 // Modfiy pagination container on filtering category and page entry
                 if ( ! preserve) {                    
@@ -245,25 +257,25 @@ $(document).ready(function() {
     
     // List all products in category in product list page
     if (location.pathname.substring(1) === "product_list.php") {      
-        //
-            $('#search_button').on('click',{ type: 1, start: 1, preserve_page: false }, fetch_products);
-            $('#sorting-arrow-up').on('click', { type: 2, preserve_page: true }, fetch_products);
-            $('#sorting-arrow-down').on('click', { type: 3, preserve_page: true }, fetch_products);
-            $('#status_tab li ').off('click')
-                .on('click', 'a', function () {
-                    $('#status_tab li').removeClass('active');
-                    $(this).closest('li').addClass('active');                       
-                    var obj = {
-                        data : { status:$(this).data('value') ,start: 1, preserve_page:false }
-                    };
-                    fetch_products(obj);
-                }); 
-
-            var cur_page = window.location.href;
-            $(':reset').on('click',function() {
-                 window.location = cur_page;
+        
+        $('#search_button').on('click',{ type: 1, start: 1, preserve_page: false }, fetch_products);
+        $('#sorting-arrow-up').on('click', { type: 2, preserve_page: true }, fetch_products);
+        $('#sorting-arrow-down').on('click', { type: 3, preserve_page: true }, fetch_products);
+        $('#status_tab li ').off('click')
+            .on('click', 'a', function () {
+                $('#status_tab li').removeClass('active');
+                $(this).closest('li').addClass('active');                       
+                var obj = {
+                    data : { status:$(this).data('value') ,start: 1, preserve_page:false }
+                };
+                fetch_products(obj);
             }); 
-        //
+
+        var cur_page = window.location.href;
+        $(':reset').on('click',function() {
+             window.location = cur_page;
+        }); 
+        
         $.ajax({
         url: 'search.php?get_list=1',
         type: 'get',
@@ -377,11 +389,12 @@ $(document).ready(function() {
     
     // Create dataTables for Product deals page
     if (location.pathname.substring(1) === "product_deals.php") {
-                
+       
         $.ajax({
-        url: 'search.php',
+        url: BASE_URL + 'search.php',
         type: 'post',
         dataType: 'json',
+        crossDomain: true,
         data: { id : 0,
                 order_in : last_type,
                 status: 1,
@@ -389,8 +402,16 @@ $(document).ready(function() {
                 no_of_rows : 200
               },
         success: function(res) {
-            console.log(res);
-                display_data(res.result, false);
+            display_data(res.result, false);
+
+            // Buy button Action
+            $('.buy_button').on('click', function() {
+                // Add to cart in cookies 
+                cart.add_item($(this).data('id'));
+                // Change text to 'added to cart'
+                $(this).text('Added').css('pointer-events', 'none').
+                        removeClass('btn-success').addClass('btn-warning');               
+            });
         }
         });
     }
@@ -413,25 +434,63 @@ $(document).ready(function() {
     
         // Fetch product details in purchase page
     if (location.pathname.substring(1) === "purchase.php") {
+        var product_id = cart.inflate_items();
+        for (var i=0; i < product_id.length; i++) {
+        
+            $.ajax({
+            url: 'search.php',
+            type: 'post',
+            dataType: 'json',
+            data: { get_product: product_id[i] },
+            success: function(res) {
+                var product = res.result;
+                var img = image_exist('img/product/' + product.image) ?
+                       'img/product/' + product.image :
+                        'img/noimage.jpg';
+                var item_div = '<div class="panel-group col-sm-9">'
+                    + '<div class="panel panel-default">'
+                    + '<div class="panel-heading">'
+                    + '<h4 class="panel-title">'
+                    + '<a data-toggle="collapse" href="#collapse'+ product.id +'">'+ product.product_name +'</a>'
+                    + '</h4>'
+                    + '</div>'
+                    + '<div id="collapse'+ product.id +'" class="panel-collapse collapse in">'
+                    + '<div class="panel-body">'
+                    +  '<img id="item_image" class="col-sm-2 img-rounded panel-images" src="'+ img +'">'
+                    + '<div id="product_info" class="col-sm-9">'
+                    + '<div><b>Category : </b>'+ product.category_name +'</div>'
+                    + '<div><b>Description : </b>'+ product.description +'</div>'
+                    + '<div><b>Price : </b><span class="item_price">'+ product.amount +'</span></div>'
+                    + '<div><b>Delivery by : </b>'+ product.created_date +'</div>'
+                    + '<div><b>Seller :</b><a class="btn btn-link seller_info" data-seller='+ product.seller_id +'>'+ product.seller_name +'</a>'
+                    + '</div>'
+                    + '<button class="btn btn-danger glyphicon glyphicon glyphicon-remove pull-right remove_item_from_cart"'
+                    + ' data-id='+ product.id +'>Remove</button>'
+                    + '</div>'
+                    + '</div>'
+                    + '</div>'
+                    + '</div>';
                 
-        $.ajax({
-        url: 'search.php',
-        type: 'post',
-        dataType: 'json',
-        data: { get_product: product_id },
-        success: function(res) {
-            var product = res.result;
-            $('#item_name').text(product.product_name);
-            $('#item_category').text(product.category_name);
-            $('#item_description').text(product.description);
-            $('#item_price, #bill').text(product.amount);
-            $('#item_uploadedon').text(product.created_date);
-            $('#item_seller').text(product.seller_name);
-            $('#item_image').attr('src','img/product/' + product.image);
-            $('#seller_info').data('seller',product.seller_id).on('click', show_seller_profile);
-            }
+                $('#items_to_be_purchased').append(item_div);
+                $('.seller_info').on('click', show_seller_profile);
+                
+                 var total_bill = 0;        
+                $('.item_price').each(function() { total_bill = total_bill + Number($(this).text())});
+                $('#bill').text(String(total_bill));
+                
+                $('.remove_item_from_cart').off('click').on('click', function() {
+                    cart.remove_item(String($(this).data('id')));
+                    location.reload();
+                });
+                
+                }
+            });
+        }
+       
+        $('#confirm_purchase_button').on('click',function() {
+           $('#confirm_purchase_modal').modal('show');  
         });
-
+        
         $('#confirm_purchase').on('click',function(){
             $.ajax({
                 url: 'search.php',
@@ -439,7 +498,6 @@ $(document).ready(function() {
                 dataType: 'json',
                 data: { purchase_id : product_id },
                 success: function(res) {
-
                     window.location = 'payment_success.php';
                 }
             });
@@ -457,47 +515,48 @@ function display_data(response, is_history_page) {
             null,
             null,
             null,
-            { "bSortable": is_history_page ? true : false },
-        ];
-    
-    if(is_history_page) {
-        aoColdef.push({ "bSortable": false });
-    }    
+            { "bSortable":  false },
+        ];  
         
     var data_table = $('#deals').dataTable({
+        "sPaginationType":"full_numbers",
         "bRetrieve": true,
-        "aoColumns": aoColdef
+        "aoColumns": aoColdef,
+        "iDisplayLength": 5,
+        "aLengthMenu": [[5, 10, 20, -1], [5, 10, 20, "All"]],
+        "sDom": '<"top"if>rt<"bottom"lp><"clear">'
+       
     });
+    
     data_table.fnClearTable();
 
-    var img_modal = '';
+    var img_modal = '', img_src;
     var action_buttons = '';
     if (0 < total_rows) {
     
         for (var i = 0; i < total_rows; i++) {
-            img_modal = '<img src="img/product/' + response[i]['image'] + '" class="product-image">' ;
-            
-            action_buttons = '<a class="btn btn-link col-sm-8 seller_details" data-seller="' + response[i].seller_id +' ">Seller Info</a>';
-            action_buttons += ! is_history_page ? '<a class="btn btn-link col-sm-4" href="purchase.php?product='+ response[i].id +'">Buy</a>' : '';
-            
+            img_src = image_exist('img/product/' + response[i]['image']) ?
+                       'img/product/' + response[i]['image'] :
+                        'img/noimage.jpg';       
+                img_modal = '<a>'+img_src+'</a>';
+//            img_modal = '<img src="' + img_src + '" class="product-image">' ;
+            action_buttons = '<a type="button" class="btn btn-info seller_details" data-seller="' + response[i].seller_id +' ">Seller Info</a><br><br>';
+            action_buttons += ! is_history_page ? '<a type="button" class="btn glyphicon glyphicon-shopping-cart buy_button'
+                + ((cart.inflate_items().indexOf(response[i].id)) !== -1 ?' btn-warning" style="pointer-events:none">Added'
+                :' btn-success" data-id=' + response[i].id + '>Buy') + '</a>' : '';
+            var date = new Date(is_history_page ? response[i].purchase_date : response[i].created_date);
             row = [response[i]['product_name'],
                 response[i]['category_name'],
                 img_modal,
                 response[i]['amount'],
                 response[i]['description'],
-                response[i]['created_date']
+                date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear(),
+                action_buttons
             ];
             
-            if (is_history_page) {
-                row.push(response[i].purchase_date);
-            }
-            
-            row.push(action_buttons);
-            console.log(row);
             data_table.fnAddData(row, false);
         }
         
-
     data_table.fnDraw();
     }
     
@@ -506,15 +565,20 @@ function display_data(response, is_history_page) {
     
 }
 
-function show_seller_profile () {
-        var seller_id = $(this).data('seller');
-         console.log(seller_id);
+function show_seller_profile (arg) { console.log(arg);
+        var user_id;
+        
+        if ( typeof arg.data === 'undefined') {
+            user_id = $(this).data('seller');
+        } else {
+            user_id = arg.data.get_buyer;
+        }
          
         $.ajax({
             url: 'search.php',
             type: 'post',
             dataType: 'json',
-            data: { get_user : seller_id },
+            data: { get_user : user_id },
             success: function(res) {
                 
                 var seller_data = res.result;
@@ -534,4 +598,26 @@ function show_seller_profile () {
                 $('#seller_info_modal').modal('show');    
             }
         });    
+}
+
+function show_buyer_profile(product_id) {
+      $.ajax({
+            url: 'search.php',
+            type: 'post',
+            dataType: 'json',
+            data: { get_buyer_of : product_id },
+            success: function(res) {
+                var obj = {
+                            data : {get_buyer :res.result.buyer_id},
+                        };
+                show_seller_profile(obj);
+            }
+        });
+}
+
+function image_exist(url) 
+{
+   var img = new Image();
+   img.src = url;
+   return img.height != 0;
 }
