@@ -9,6 +9,11 @@ $session = new Session;
 if ( ! $session->is_user_authorized()) {
      error_log_file('Unauthorized access.');
 }
+
+$db = new dbOperation();
+$db->select('role',['name'],['id' => $_SESSION['role']]);
+$role_name = $db->fetch();
+$_SESSION['role_name'] = $role_name['name'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -69,7 +74,9 @@ if ( ! $session->is_user_authorized()) {
                 </div>
             </div>
         </section>
-
+        <script type="text/javascript">
+           document.cookie = 'username = <?php echo $_SESSION['email']; ?>';
+        </script>
         <?php require_once 'templates/footer.php'; ?>
     </body>
 </html>

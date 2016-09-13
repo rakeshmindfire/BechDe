@@ -434,7 +434,17 @@ $(document).ready(function() {
     
         // Fetch product details in purchase page
     if (location.pathname.substring(1) === "purchase.php") {
+        
+        // if no items in cart
+        if(cart.count_items()===0) {
+            var no_items_msg = '<h3>No Items in the cart</h3><h4>Click <a href="product_deals.php">here</a> to add products in cart</h4>';
+            $('#items_to_be_purchased').append(no_items_msg);
+            $('#billing_info').addClass('hide');
+        
+        } else {
+        
         var product_id = cart.inflate_items();
+        var download_image = [];
         for (var i=0; i < product_id.length; i++) {
         
             $.ajax({
@@ -444,9 +454,9 @@ $(document).ready(function() {
             data: { get_product: product_id[i] },
             success: function(res) {
                 var product = res.result;
-                var img = image_exist('img/product/' + product.image) ?
-                       'img/product/' + product.image :
-                        'img/noimage.jpg';
+//                var img = image_exist('img/product/' + product.image) ?
+//                       'img/product/' + product.image : 'img/noimage.jpg';
+                var img = 'img/ajax-loader.gif';
                 var item_div = '<div class="panel-group col-sm-9">'
                     + '<div class="panel panel-default">'
                     + '<div class="panel-heading">'
@@ -456,7 +466,7 @@ $(document).ready(function() {
                     + '</div>'
                     + '<div id="collapse'+ product.id +'" class="panel-collapse collapse in">'
                     + '<div class="panel-body">'
-                    +  '<img id="item_image" class="col-sm-2 img-rounded panel-images" src="'+ img +'">'
+                    +  '<img id="item_image'+ product.id +'" class="col-sm-2 img-rounded panel-images" src="'+ img +'">'
                     + '<div id="product_info" class="col-sm-9">'
                     + '<div><b>Category : </b>'+ product.category_name +'</div>'
                     + '<div><b>Description : </b>'+ product.description +'</div>'
@@ -471,23 +481,31 @@ $(document).ready(function() {
                     + '</div>'
                     + '</div>';
                 
+                download_image[i] = new Image();
+                download_image[i].src = 'img/product/' + product.image;
+                download_image[i].onload = function() {
+                  $('#item_image' + product.id).attr('src', this.src);
+                };
+                download_image[i].onerror = function() {
+                  $('#item_image' + product.id).attr('src', 'img/noimage.jpg');
+                };
+                
                 $('#items_to_be_purchased').append(item_div);
-                $('.seller_info').on('click', show_seller_profile);
-                
-                 var total_bill = 0;        
-                $('.item_price').each(function() { total_bill = total_bill + Number($(this).text())});
-                $('#bill').text(String(total_bill));
-                
+                $('.seller_info').on('click', show_seller_profile);               
                 $('.remove_item_from_cart').off('click').on('click', function() {
                     cart.remove_item(String($(this).data('id')));
                     location.reload();
                 });
+            
+                var total_bill = 0;        
+                $('.item_price').each(function() { total_bill = total_bill + Number($(this).text())});
+                $('#bill').text(String(total_bill.toFixed(2)));
                 
                 }
             });
         }
        
-        $('#confirm_purchase_button').on('click',function() {
+        $('#confirm_purchase_button').removeClass('hide').on('click',function() {
            $('#confirm_purchase_modal').modal('show');  
         });
         
@@ -496,13 +514,15 @@ $(document).ready(function() {
                 url: 'search.php',
                 type: 'post',
                 dataType: 'json',
-                data: { purchase_id : product_id },
+                data: { purchase_id : JSON.stringify(cart.inflate_items()) },
                 success: function(res) {
+                    cart.clear();
                     window.location = 'payment_success.php';
                 }
             });
         });
-        
+         $('#billing_info').removeClass('hide');
+    }
     }
 })
 
@@ -529,17 +549,15 @@ function display_data(response, is_history_page) {
     });
     
     data_table.fnClearTable();
-
+    
+    var product_image = [], target_tag = [];
     var img_modal = '', img_src;
     var action_buttons = '';
     if (0 < total_rows) {
-    
+
         for (var i = 0; i < total_rows; i++) {
-            img_src = image_exist('img/product/' + response[i]['image']) ?
-                       'img/product/' + response[i]['image'] :
-                        'img/noimage.jpg';       
-                img_modal = '<a>'+img_src+'</a>';
-//            img_modal = '<img src="' + img_src + '" class="product-image">' ;
+            
+            img_modal = '<img data-image='+ response[i].image +' src="img/ajax-loader.gif" class="product-image">' ;
             action_buttons = '<a type="button" class="btn btn-info seller_details" data-seller="' + response[i].seller_id +' ">Seller Info</a><br><br>';
             action_buttons += ! is_history_page ? '<a type="button" class="btn glyphicon glyphicon-shopping-cart buy_button'
                 + ((cart.inflate_items().indexOf(response[i].id)) !== -1 ?' btn-warning" style="pointer-events:none">Added'
@@ -555,13 +573,27 @@ function display_data(response, is_history_page) {
             ];
             
             data_table.fnAddData(row, false);
+            
         }
         
     data_table.fnDraw();
     }
     
     $('.product-image').on('click', show_image_modal);
-    $('.seller_details').on('click', show_seller_profile);
+    $('.seller_details').on('click', show_seller_profile);  
+    
+        $('.product-image').each ( function() {
+            var img = $(this);
+            var download_image = new Image(); 
+            download_image.src = 'img/product/' + $(this).data('image');
+            download_image.onload = function() {
+                img.attr('src', this.src); 
+            };
+            download_image.onerror = function() {
+                img.attr('src', 'img/noimage.jpg');
+            };
+        });
+       
     
 }
 
@@ -615,9 +647,11 @@ function show_buyer_profile(product_id) {
         });
 }
 
-function image_exist(url) 
-{
+function image_exist(url) {
    var img = new Image();
    img.src = url;
+   img.onload = function() {
+       
+   }
    return img.height != 0;
 }

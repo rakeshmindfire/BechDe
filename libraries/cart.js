@@ -1,5 +1,5 @@
-function itemsCart() {
-    this.inflate_items = function () {    
+var cart = {
+    inflate_items : function () {    
         var cookie_array = document.cookie.split('; ');
         var items_i = -1;
         var retval = [];
@@ -22,29 +22,32 @@ function itemsCart() {
             }
         }
         return retval;
-    }
+    },
     
-    this.count_items = function() {
+    count_items : function() {
         return this.inflate_items().length;        
-    }
+    },
     
-    this.stitch = function(items_list) {
+    stitch : function(items_list) {
         document.cookie = 'cart=' + items_list.join();
-    }
+    },
     
-    this.remove_item = function(item) {
+    remove_item : function(item) {
         var items_list = this.inflate_items();
         var item_index = items_list.indexOf(item);
         items_list.splice(item_index, 1);
         this.stitch(items_list);
-    }
+    },
     
-    this.add_item = function(item) {
+    add_item : function(item) {
         var items_list = this.inflate_items();
         items_list.push(item);
         this.stitch(items_list);
+    },
+    
+    clear : function() {
+         document.cookie = "cart=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
         
 };
 
-var cart = new itemsCart();

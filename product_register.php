@@ -16,15 +16,16 @@ if ( ! $session->is_user_authorized(TRUE, 'products', $action)) {
 
 $is_update = FALSE;
 
-if (isset($_GET['update_id']) ) {
+if ( isset($_GET['update_id']) ) {
     
     // Check if product belongs to that user
     $db->select('products_list', ['user_id'], ['id'=>$_GET['update_id']]);
     $res_user_id = $db->fetch();
 
     // Logging out User if try to update any other user product
-    if ($res_user_id['user_id'] !== $_SESSION['id']) {
+    if ( $_SESSION['role'] !== '1' && $res_user_id['user_id'] !== $_SESSION['id']) {
         header('Location: logout.php');
+        error_log_file('Unauthorized access');
     }
  
     // Set the flag to show data is being updated

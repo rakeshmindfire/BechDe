@@ -63,12 +63,31 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
      unset ($_POST['change_id']);
 
 } else if (isset($_POST['purchase_id'])) {
-    $db->insert_or_update(2, 'products_list', ['is_active'=> 0, 'is_avail' => 0], ['id'=> $_POST['purchase_id']]);
-    $db->insert_or_update(1, 'purchased', ['buyer_id'=> $_SESSION['id'], 'product_id' => $_POST['purchase_id']],
-            ['id'=>$_POST['purchase_id']]);
-     unset ($_POST['purchase_id']);
-     echo json_encode(['status' => 1]);
+
     
+    $items = explode(',', trim($_POST['purchase_id'],'[]'));
+    
+    foreach ( $items as $item) {
+        $pur_id = trim($item, '"');
+        /**
+        * Check if purchase id is valid 
+        */
+        $db->select('products_list', ['id'], ['is_active'=> 1, 'is_avail'=> 1, 'id'=> $pur_id]);
+        
+        if( $db->num_rows_result !== 1) {
+            $stat = 0;
+            break;
+        
+        } else {
+            $stat = 1;
+            $db->insert_or_update(2, 'products_list', ['is_active'=> 0, 'is_avail' => 0], ['id'=> $pur_id]);
+            $db->insert_or_update(1, 'purchased', ['buyer_id'=> $_SESSION['id'], 'product_id' => $pur_id]);
+        }
+    }
+
+    unset ($_POST['purchase_id']);
+    echo json_encode(['status' => $stat]);
+
 } else if (isset($_POST['get_user'])) {
     $db->get_all_users(['u.id'=>$_POST['get_user']]);
     echo json_encode(['status' => 1, 'result' => $db->fetch()]);
@@ -76,14 +95,22 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
 
 } else if (isset($_POST['get_product'])) {
     $table = 'products_list pl JOIN users u ON u.id=pl.user_id JOIN products_category pc ON pl.category=pc.id ' ;
-   $attr_list = ['pl.id', 'pc.name AS category_name', 'pl.image', 'pl.name AS product_name',
+    $attr_list = ['pl.id', 'pc.name AS category_name', 'pl.image', 'pl.name AS product_name',
         'pl.amount', 'pl.description', 'pl.created_date',
         'CONCAT(u.first_name,\' \',u.middle_name,\' \',u.last_name) AS seller_name', 'u.id AS seller_id'];
     $where = ['pl.id' => $_POST['get_product']];
     $db->select($table, $attr_list, $where);
     echo json_encode(['status' => 1, 'result' => $db->fetch()]);
     unset ($_POST['get_product']);
-
+    
+} else if (isset($_POST['get_buyer_of'])) {
+        $table = 'purchased pd JOIN users u ON pd.buyer_id=u.id';
+        $attr_list = ['buyer_id'];        
+        $where = ['pd.product_id' => $_POST['get_buyer_of']];
+        $db->select($table, $attr_list, $where);
+        unset ($_POST['get_buyer_of']);
+        echo json_encode(['status' => 1, 'result' => $db->fetch()]);
+        
 } else if (isset($_POST['is_history'])) {
     $table = 'purchased pd JOIN products_list pl ON pl.id=pd.product_id JOIN users u ON u.id=pl.user_id'
         . ' JOIN products_category pc ON pc.id=pl.category';
@@ -115,14 +142,32 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
     $total = 0;
     // Get total records
     
-    $where_clause = ['is_active'=>$_POST['status']];
+    $where_clause =[];
+    
+    switch ($_POST['status']) {
+        case '1' :
+            $where_clause = ['is_active' => $_POST['status']];
+            break;
+        
+        case '0':
+            $where_clause = ['is_active' => $_POST['status'], 'is_avail' => 1 ];
+            break;
+        
+        case '3':
+            $where_clause = ['is_avail' => 0 ];
+            break;
+        
+        default :
+            error_log_file('Wrong parameter');
+            break;
+    }
     
     if ( isset($_POST['id']) && $_POST['id'] !=='0') {
         $where_clause['pc.id'] = $_POST['id'];
     }
     
     $table = 'products_list pl JOIN users u ON u.id=pl.user_id JOIN products_category pc ON pl.category=pc.id '
-            . ($is_admin_or_buyer ? '': 'AND pl.user_id='.$_SESSION['id']) ;
+            . ($is_admin_or_buyer ? '': 'AND pl.user_id=' . $_SESSION['id']) ;
             
     
     // Get count of total number of products based on filter criteria

@@ -18,3 +18,6 @@
 <!-- Theme CSS -->
 <link href="css/theme.css" rel="stylesheet">
 <link href="css/style.css" rel="stylesheet">
+<script type="text/javascript">
+var BASE_URL = '<?php echo BASE_PATH; ?>';
+</script>

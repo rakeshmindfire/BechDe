@@ -53,7 +53,7 @@ if (isset($_GET['success'])) {
                 </select>
                 <button class='btn btn-default btn-sm' id="search_button">Search</button>
             </div>
-            <div class="col-md-offset-1 col-sm-2">
+            <div class="col-sm-2">
                 <ul class="nav nav-tabs" id="status_tab">
                   <li class="active"><a href="#" data-value="1">Active</a></li>
                   <li><a href="#" data-value="0">Inactive</a></li>
@@ -110,7 +110,7 @@ if (isset($_GET['success'])) {
            </div>
             
             <!--Modal for Image zoom-->
-            <div id="myModalImage" class="modal fade" role="dialog">
+            <div id="my_modal_image" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-body" >
                         <img class="img-thumbnail" class="show-zoomed" id="zoomed_image">
@@ -120,10 +120,57 @@ if (isset($_GET['success'])) {
                     </div>
                 </div>
             </div>
+             <!--Modal for Seller Info-->
+        <div id="seller_info_modal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                <div class="modal-header">
+                    
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Seller Info </h4>
+                </div>
+                <div class="modal-body" >
+                    <div class="row">
+                        <img id="seller_image" class="col-xs-2 img-rounded">
+                        <div class="col-md-9 text-justify"> 
+                            <div >
+                                <b >Name : </b><span id="seller_name"></span>
+                            </div>
+                            <div >
+                                <b >Sex : </b><span id="seller_sex"></span>
+                            </div>
+                            <div >
+                                <b >DOB : </b><span id="seller_dob"></span>
+                            </div>
+                            <div >
+                                <b >Mobile : </b><span id="seller_mob"></span>
+                            </div>
+                            <div >
+                                <b>About : </b><span id="seller_bio"></span>
+                            </div>
+                            <div >
+                                <b>Preferred communication : </b><span id="seller_prefcomm"></span>
+                            </div>
+                            <div >
+                                <b>Office Address : </b><span id="seller_addr"></span>
+                            </div>  
+                            <div >
+                                <b>Email : </b><span id="seller_email"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+            </div>
+        </div>
         </div>
         <script type="text/javascript">
-            var page_size = <?php echo PER_PAGE_RECORD; ?>;
-            var user_role = <?php echo $_SESSION['role']; ?>
+            var page_size = <?php echo PER_PAGE_RECORD; ?> ;
+            var user_role = <?php echo $_SESSION['role']; ?> ;
+            var no_image = "<?php echo NOIMAGE; ?>" ;
         </script>
         <?php require_once 'templates/footer.php'; ?>
     </body>

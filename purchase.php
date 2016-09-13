@@ -42,9 +42,12 @@ if ( ! $session->is_user_authorized()) {
         <div class="container">
         <div class="container" id="items_to_be_purchased">
         <div id="billing_info" class="col-md-offset-1 col-sm-2 pull-right">
-                <h4>BILLING INFO :</h4>
+                <h4>BILLING INFO </h4>
+                <div id="amount_to_pay">
                 Amount to pay : <span id="bill"></span><br>
+                </div>
                 <button id="confirm_purchase_button" type="button" class="btn-sm btn-success">Confirm purchase</button>
+                
             </div>
         </div>
         </div>

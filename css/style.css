@@ -112,7 +112,7 @@ label {
 }
 
 #status_tab {
-      width: 182px;
+      width: 236px;
       margin-top: 12px;
 }
 
@@ -132,5 +132,23 @@ table {
 
 #saved {
     text-align: center;
+    font-weight: bold;
+}
+.panel-images {
+    height:150px;
+    width:150px;
+}
+
+#billing_info {
+    height: 200px;
+    background-color: #fed136;
+    text-align: center;
+}
+
+#amount_to_pay {
+    margin: 36px 0px 53px 0px;
+}
+
+#bill {
     font-weight: bold;
 }

@@ -27,7 +27,8 @@ require_once 'templates/header.php';
     <div class="confirmation margin-top120" id="confirm_message">
         </div>
         <div class="container">
-            <table id="deals">
+            <h3>My Purchase History</h3>
+            <table id="deals" class="cell-border">
                 <thead>
                  <tr>
                     <th>Name</th>
@@ -35,15 +36,14 @@ require_once 'templates/header.php';
                     <th>Image</th>
                     <th>Amount</th>
                     <th>Description</th>
-                    <th>Uploaded on</th>
                     <th>Purchase Date</th>
-                    <th>Seller </th>                
+                    <th>Seller</th>                
                  </tr>
                 </thead>
             </table>
         </div>
         <!--Modal for Image zoom-->
-        <div id="myModalImage" class="modal fade" role="dialog">
+        <div id="my_modal_image" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-body" >
                     <img class="img-thumbnail" class="show-zoomed" id="zoomed_image">

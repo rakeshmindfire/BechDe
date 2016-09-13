@@ -16,14 +16,11 @@
                 <li class="hidden">
                     <a href="home.php"></a>
                 </li>
-                 <li>
-                    <a class="" href="user_list.php?user=s">Sellers</a>
-                </li>
                 <li>
                     <a class="" href="product_deals.php">Deals</a>
                 </li>
                 <li>
-                    <a class="" href="#">Cart</a>
+                    <a class="" href="purchase.php">Cart</a>
                 </li>
                 <li>
                     <a class="" href="history.php">History</a>
@@ -39,8 +36,9 @@
         <!-- /.navbar-collapse -->
     </div>
     <!-- /.container-fluid -->
-       
-    <div class="container nav-name"><?php echo $_SESSION['name'];?></div>
+
+    <div class="container nav-name"><?php echo 'Welcome, ' . $_SESSION['name'] 
+            . ' ( ' . $_SESSION['role_name'] . ' )';?></div>
 </nav>
 
 

@@ -31,4 +31,6 @@ define('SENDER_PASSWORD', 'isinvssut');
 
 // Encryption salt
 define('SALT', 'quicksellersalt');
+
+define('BASE_PATH','http://local.quickseller.com/');
 ?>
