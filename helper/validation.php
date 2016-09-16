@@ -247,4 +247,3 @@ function santizing($data) {
 
     return $data;
 }
-?>

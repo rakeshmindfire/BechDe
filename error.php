@@ -12,7 +12,7 @@ $session = new Session;
         ?>
     </head>
     <body class="container jumbotron">
-        <h1>Some error occurred</h1><br>
+        <h1>Some Internal Error occurred</h1><br>
         <a href="<?php echo $session->validate_session() ? 'home.php': 'index.php' ?>" id="danger"> GO HOME </a>
     </body>
 </html>

@@ -46,7 +46,7 @@ class dbOperation {
      * @param array $order_by Array of ordering column at index 0 and ordering type at index 1
      * @return void 
      */
-    public function select($table_name, $fields_list=['*'], $where_clause=[], $order_by=[], $limit=[]) {
+    public function select($table_name, $fields_list=['*'], $where_clause=[], $order_by=[], $limit=[], $in = FALSE) {
         $this->query = 'SELECT '.implode(',',$fields_list)
             . ' FROM ' . $table_name;
 
@@ -54,10 +54,17 @@ class dbOperation {
             $this->query .= ' WHERE ';
             $where_keys = array_keys($where_clause);
             $where_values = array_values($where_clause);
-            for ( $i=0 ; $i < sizeof($where_clause); $i++) {
-                $this->query .=  $where_keys[$i].'= \''.$where_values[$i].'\' AND ';
+            
+            if( ! $in) { 
+                
+                for ( $i=0; $i < sizeof($where_clause); $i++) {
+                    $this->query .=  $where_keys[$i].'= \''.$where_values[$i].'\' AND ';
+                }
+                
+                $this->query = rtrim($this->query,'AND ');
+            } else {
+                $this->query .=  implode($where_keys).' IN ('. implode($where_values).') ';
             }
-            $this->query = rtrim($this->query,'AND ');
 
         }
         
@@ -166,7 +173,7 @@ class dbOperation {
      * @param array $where_clause Array of key as column and corresponding value for where condition
      * @return  integer/void insert/update
      */
-    public function insert_or_update($query_type, $table_name, $data, $where_clause=[]) {
+    public function insert_or_update($query_type, $table_name, $data, $where_clause=[], $in = FALSE) {
         
         switch($query_type) {
             
@@ -184,8 +191,14 @@ class dbOperation {
                 $this->query = rtrim($this->query,',');
                 
                 if ( ! empty($where_clause)) {
-                    $this->query .= ' WHERE '.implode(array_keys($where_clause)).'= \''
-                        .implode(array_values($where_clause)) . '\'';
+                   
+                    if ( ! $in) {
+                       $this->query .= ' WHERE '.implode(array_keys($where_clause)).'= \''
+                            .implode(array_values($where_clause)) . '\'';
+                    } else {
+                        $this->query .= ' WHERE '.implode(array_keys($where_clause)).' IN ('
+                           .implode(array_values($where_clause)) . ')';
+                    }          
                 }
                 
                 break;
@@ -199,7 +212,7 @@ class dbOperation {
         $this->validate_result('insert_or_update '.$query_type);
         return $query_type === 1 ? mysqli_insert_id($this->conn): FALSE;
     }
-    
+
     /**
      * To delete a row from a table
      *
@@ -250,7 +263,7 @@ class dbOperation {
     }
     
     /**
-     * To log an error if encountered
+     * To log an error when encountered
      *
      * @access public
      * @param string $type type of operation SELECT, INSERT, UPDATE, DELETE
@@ -260,4 +273,4 @@ class dbOperation {
         error_log_file('db error '.$type);
     }
 }
-?>
+

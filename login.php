@@ -40,7 +40,7 @@ if ( ! empty($_POST)) {
                 $session->init('role', $db_result['role']);
                 $session->init('name', $db_result['first_name'].' '.$db_result['middle_name'].' '.$db_result['last_name']);
                 header('Location: home.php');
-            
+           
             } else {
               $error['password'] = 'Wrong password';  
             }

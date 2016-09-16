@@ -1,3 +1,20 @@
+/**
+ * Library to clear all cookies 
+ *
+ * @category   Library
+ * @package    QuickSeller
+ * @author     Rakesh Ranjan Das  <rakesh.das@mindfiresolutions.com>
+ * @license    QuickSeller
+ * @link       void
+ */
+
+
+/**
+ * To remove all cookies on logout
+ *
+ * @access public
+ * @return void
+ */
 function delete_cookies() {
     var cookies = document.cookie.split(";");
 

@@ -152,3 +152,15 @@ table {
 #bill {
     font-weight: bold;
 }
+
+#items_in_cart {
+    color: maroon;
+    font-size: xx-small;
+}
+
+#processing img {
+    width: 100px;
+    position: fixed;
+    top: 330px;
+    left: 690px;
+}

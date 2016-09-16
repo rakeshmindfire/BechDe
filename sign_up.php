@@ -81,7 +81,8 @@ if ( ! empty($_POST)) {
             . '<br>To activate your account click on this '
             . '<a href="http://local.quickseller.com/activation.php?id='. urlencode(simple_encrypt($user_id)) 
             . '">link</a>';
-        send_mail($_POST['email'], $msg);
+        $sub = 'Account Activation Link : QuickSeller';
+        send_mail($_POST['email'], $msg, $sub);
         
         // Redirect to login page after registration
         header('Location: login.php?success=1');
@@ -228,10 +229,10 @@ if ( ! empty($_POST)) {
                     <div class="form-group">
                         <label class="control-label col-sm-2" >User Type &nbsp;</label>
                         <div class="col-sm-10">
-                            <label class="radio-inline"><input type="radio" name="user_type" value="B"
-                                <?php echo isset($_POST['user_type']) && ($_POST['user_type'] === 'S') ? 'checked="false"' : 'checked="true"' ?>> Buyer</label>
-                            <label class="radio-inline"><input type="radio" name="user_type" value="S"
-                                 <?php echo isset($_POST['user_type']) && ($_POST['user_type'] === 'S') ? 'checked="true"' : '' ?>> Seller</label>
+                            <label class="radio-inline"><input type="radio" name="user_type" value="3"
+                                <?php echo isset($_POST['user_type']) && ($_POST['user_type'] === '2') ? 'checked="false"' : 'checked="true"' ?>> Buyer</label>
+                            <label class="radio-inline"><input type="radio" name="user_type" value="2"
+                                 <?php echo isset($_POST['user_type']) && ($_POST['user_type'] === '2') ? 'checked="true"' : '' ?>> Seller</label>
                         </div>
                     </div>
 
