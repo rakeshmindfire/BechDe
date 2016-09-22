@@ -2,6 +2,7 @@
 // Include the constant files
 require_once 'libraries/db.php';
 require_once 'libraries/session.php';
+require_once 'libraries/twitter.php';
 
 $session = new Session;
 
@@ -38,7 +39,28 @@ $_SESSION['role_name'] = $role_name['name'];
                 </div>
             </div>
         </header>
-
+        <section id="tweet_section" class="margin-top120">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2 class="section-heading">MY RECENT TWEETS</h2>
+                </div>
+            </div>
+            <div class="container well" id = "recent_tweet_space">       <?php 
+                $tweets = json_decode(get_tweets());
+                
+                foreach ($tweets as $t) {
+                ?> 
+                <div class = "recent-tweets">
+                    <span class="tweet-text"><?php echo $t->text; ?></span><br>
+                    <span class="tweet-icon glyphicon glyphicon-time"></span><span class="tweet-date"><?php echo str_replace(' ', '-', substr($t->created_at, 0, 10)); ?></span>
+                    <span class="tweet-icon glyphicon glyphicon-retweet"></span><span class="tweet-retweet"><?php echo $t->retweet_count; ?></span>
+                    <span class="tweet-icon glyphicon glyphicon-heart"></span><span class="tweet-fav"><?php echo $t->favorite_count; ?></span>
+                </div>
+                    <hr>
+                
+          <?php }?>
+            </div>
+        </section>
         <section id="services" class="margin-top120">
             <div class="container">
                 <div class="row">

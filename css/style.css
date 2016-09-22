@@ -134,13 +134,14 @@ table {
     text-align: center;
     font-weight: bold;
 }
+
 .panel-images {
     height:150px;
     width:150px;
 }
 
-#billing_info {
-    height: 200px;
+#billing_bill {
+    height: auto;
     background-color: #fed136;
     text-align: center;
 }
@@ -163,4 +164,37 @@ table {
     position: fixed;
     top: 330px;
     left: 690px;
+}
+
+.recent-tweets {
+    font-size: x-large;
+}
+
+.tweet-retweet, .tweet-date, .tweet-fav {
+    margin-left: 10px;
+    color: grey;
+}
+
+.tweet-icon {
+    margin-left: 50px;
+}
+
+.tweet-text {
+    color: #31708f;
+    margin-top: 20px;
+    font-weight: lighter;
+}
+
+#twitter_img {
+    width: 40px;
+    height: 40px;
+}
+
+#twitter_check {
+    margin-top: 30px;
+}
+
+#at {
+    width: 10px;
+    font-size: 20px;
 }

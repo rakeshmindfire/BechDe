@@ -26,14 +26,18 @@ if ( ! $session->is_user_authorized(TRUE, 'deals', 'view')) {
         <div class="confirmation margin-top120" id="confirm_message"></div>
         <div class="container">
         <div class="container" id="items_to_be_purchased">
-        <div id="billing_info" class="col-md-offset-1 col-sm-2 pull-right">
-                <h4>BILLING INFO </h4>
-                <div id="amount_to_pay">
-                Amount to pay : <span id="bill"></span><br>
-                </div>
-                <button id="confirm_purchase_button" type="button" class="btn-sm btn-success">Confirm purchase</button>
-                
+        <div id="billing_info" class="container col-md-offset-1 col-sm-2 pull-right">
+            <div id="billing_bill">
+            <h4>BILLING INFO </h4>
+            <div id="amount_to_pay">
+            Amount to pay : <span id="bill"></span><br>
             </div>
+            <button id="confirm_purchase_button" type="button" class="btn-sm btn-success">Confirm purchase</button> 
+            </div>
+            <div id="twitter_check">
+                <img src="img/twitter.png" id="twitter_img">Tweet about this<input type="checkbox" checked="true" id="post_tweet">
+            </div>
+        </div>
         </div>
         </div>
         <!--Modal for Seller Info-->
@@ -60,7 +64,7 @@ if ( ! $session->is_user_authorized(TRUE, 'deals', 'view')) {
         <div id="processing" class="hide">
             <img src="img/ajax-loader.gif">
         </div>
-        
+       
         <script type="text/javascript">
             var no_image = "<?php echo NOIMAGE; ?>";
         </script>

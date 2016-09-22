@@ -33,4 +33,10 @@ define('SENDER_PASSWORD', 'isinvssut');
 define('SALT', 'quicksellersalt');
 
 define('BASE_PATH','http://local.quickseller.com/');
+
+// OAuth keys
+define('OAUTH_TWITTER_CONSUMER_KEY', 'ngRy6rnBm1UmIxixNTFOXOMkl');
+define('OAUTH_TWITTER_TOKEN', '777810478693163008-GmSVP0BR5TymdCKwHNp0MXASur9kx8z');
+define('OAUTH_TWITTER_TOKEN_SECRET', 'SzJ5UroyrAm3hBpy4rJHQlQH8d9Zy7Ln9VmpMucClwYXo');
+define('OAUTH_TWITTER_CONSUMER_SECRET', 'k0HXaBiIoMgmU3Lb3pfiLgy49m0gIsYyvpq01lzfPLveQ437dy');
 ?>

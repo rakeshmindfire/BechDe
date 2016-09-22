@@ -271,9 +271,11 @@ function show_user_profile (arg) {
         // arg.data not set when called by a seller
         if ( typeof arg.data === 'undefined') {
             user_id = $(this).data('seller');
+            $('#user_type').text('Seller');
         
         } else { // arg.data.get_buyer set with user_id when called by a buyer
             user_id = arg.data.get_buyer;
+            $('#user_type').text('Buyer');
         }
          
         $.ajax({
@@ -630,13 +632,15 @@ function purchase_bind() {
         $('#confirm_purchase').off('click').on('click',function() {
            $('body').css({'pointer-events':'none', 'opacity':'0.2'});
            $('#processing').removeClass('hide').css('opacity','1');
+           var cart_items_string = JSON.stringify(cart.inflate_items());
             $.ajax({
                 url: 'search.php',
                 type: 'post',
                 dataType: 'json',
-                data: { purchase_id : JSON.stringify(cart.inflate_items()) },
+                data: { purchase_id : cart_items_string ,
+                    post_tweet : $('#post_tweet').prop('checked') },
                 success: function(res) {
-                    if (res.status) {
+                    if (res.status) {   
                         // Clear Cart and Redirect to deals page
                         cart.clear();                               
                         window.location = 'payment_success.php';    

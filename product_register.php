@@ -16,7 +16,7 @@ if ( ! $session->is_user_authorized(TRUE, 'products', $action)) {
 
 $is_update = FALSE;
 
-if ( isset($_GET['update_id']) ) {
+if (isset($_GET['update_id']) ) {
     
     // Check if product belongs to that user
     $db->select('products_list', ['user_id'], ['id'=>$_GET['update_id']]);
@@ -35,6 +35,7 @@ if ( isset($_GET['update_id']) ) {
     $db->select('products_list', ['category', 'name', 'amount', 'description', 'image'], 
         ['id' => $_GET['update_id']]);
     $row_to_update = $db->fetch();
+
 } 
 
 if ( ! empty($_POST)) {

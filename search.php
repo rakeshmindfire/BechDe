@@ -3,6 +3,7 @@ require_once 'libraries/db.php';
 require_once 'libraries/session.php';
 require_once 'libraries/send_mail.php';
 require_once 'libraries/encrypt_decrypt.php';
+require_once 'libraries/twitter.php';
 
 $session = new Session;
 
@@ -13,6 +14,23 @@ if (isset($_POST['delete_id'])) {
 } else {
     $action = 'view';
 } 
+
+/**
+ * To send receipt to the buyer email after purchase
+ *
+ * @access public
+ * @param integer $receipt_id Receipt id of the purchase
+ * @return void 
+ */
+function send_receipt($receipt_id) {
+    
+    $msg = '<b>Thank You for purchasing from QuickSeller</b>'
+        . '<br>To download your receipt click on this '
+        . '<a href="http://local.quickseller.com/receipt.php?id='. urlencode(simple_encrypt($receipt_id)) 
+        . '">link</a>';
+    $sub = 'Purchase Receipt-'. date('Y-m-d H:i:s',time()) .' : QuickSeller';
+    send_mail($_SESSION['email'], $msg, $sub);
+}
 
 // If session not set redirect to index.php
 if ( ! $session->is_user_authorized(TRUE, 'products', $action)) {
@@ -67,16 +85,24 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
     $items = explode(',', trim($_POST['purchase_id'],'[]'));
     $items_comma =  str_replace('"','',implode(',', $items));
     $db->insert_or_update(2, 'products_list', ['is_active'=> 0, 'is_avail' => 0, 'buyer' => $_SESSION['id']], ['id'=> $items_comma], TRUE);
-    $receipt_id = $db->insert_or_update(1, 'purchased', ['buyer_id'=> $_SESSION['id'], 'items' => $items_comma]);
+    $receipt_id = $db->insert_or_update(1, 'purchased', ['buyer_id'=> $_SESSION['id'], 'items' => $items_comma]); 
     
-    // Send Receipt
-    $msg = '<b>Thank You for purchasing from QuickSeller</b>'
-        . '<br>To download your receipt click on this '
-        . '<a href="http://local.quickseller.com/receipt.php?id='. urlencode(simple_encrypt($receipt_id)) 
-        . '">link</a>';
-    $sub = 'Purchase Receipt : QuickSeller';
-    send_mail($_SESSION['email'], $msg, $sub);
+    send_receipt($receipt_id);
+    
+    // Tweet
+    $db->select('products_list pl', ['name'],
+    ['pl.id' => $items_comma], [], [], TRUE);
+    $items_string = '';
 
+    while($row = $db->fetch()) {
+        $items_string .= ', ' . $row['name'];
+    }
+
+    $items_string = trim($items_string, ', ');
+
+//    echo $items_string;
+    post_tweet($items_string); 
+    
     unset ($_POST['purchase_id']);
     echo json_encode(['status' => TRUE]);
     
@@ -84,6 +110,7 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
     // Get details of a user
     $db->get_all_users(['u.id'=>$_POST['get_user']]);
     echo json_encode(['status' => 1, 'result' => $db->fetch()]);
+    
 } else if (isset($_POST['get_product'])) {
     // Get details of a product
     $table = 'products_list pl JOIN users u ON u.id=pl.user_id JOIN products_category pc ON pl.category=pc.id ' ;
