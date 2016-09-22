@@ -53,7 +53,7 @@ if (isset($_GET['success'])) {
                 </select>
                 <button class='btn btn-default btn-sm' id="search_button">Search</button>
             </div>
-            <div class="col-md-offset-1 col-sm-2">
+            <div class="col-sm-2">
                 <ul class="nav nav-tabs" id="status_tab">
                   <li class="active"><a href="#" data-value="1">Active</a></li>
                   <li><a href="#" data-value="0">Inactive</a></li>
@@ -86,7 +86,7 @@ if (isset($_GET['success'])) {
                 </ul>
             </div>
             <div id='no_data'>
-            <h2 class="hide">No Products Found!! </h2><br><h4>To add product <a href="product_register.php"> click now</a></h4>
+            <h2 class="hide">No Products Found!! </h2><br><h4>To add product <a href="product_register.php"> click here</a></h4>
             </div>
             
             <!--Modal for delete confirmation-->
@@ -109,21 +109,16 @@ if (isset($_GET['success'])) {
               </div>
            </div>
             
-            <!--Modal for Image zoom-->
-            <div id="myModalImage" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-body" >
-                        <img class="img-thumbnail" class="show-zoomed" id="zoomed_image">
-                        <div class="clearfix">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!--Modal for Image Zoom-->
+        <?php require_once 'templates/image_modal.php';?> 
+        <!--Modal for Seller Info-->
+        <?php require_once 'templates/seller_info_modal.php';?>
+        
         </div>
         <script type="text/javascript">
-            var page_size = <?php echo PER_PAGE_RECORD; ?>;
-            var user_role = <?php echo $_SESSION['role']; ?>
+            var page_size = <?php echo PER_PAGE_RECORD; ?> ;
+            var user_role = <?php echo $_SESSION['role']; ?> ;
+            var no_image = "<?php echo NOIMAGE; ?>" ;
         </script>
         <?php require_once 'templates/footer.php'; ?>
     </body>

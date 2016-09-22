@@ -15,9 +15,6 @@
                 <li class="hidden">
                     <a href="home.php"></a>
                 </li>
-                 <li>
-                    <a class="" href="user_list.php?user=s">Top Sellers</a>
-                </li>
                 <li>
                     <a class="" href="product_list.php">My Product List</a>
                 </li>
@@ -36,7 +33,8 @@
     </div>
     <!-- /.container-fluid -->
 
-    <div class="container nav-name"><?php echo 'Welcome '.$_SESSION['name'].' <' .$_SESSION['role'] . '>';?></div>
+    <div class="container nav-name"><?php echo 'Welcome, '.$_SESSION['name'].' ( ' 
+            .$_SESSION['role_name'] . ' )';?></div>
 </nav>
 
 

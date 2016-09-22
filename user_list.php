@@ -43,7 +43,8 @@ $db->get_all_users($where_user, ['u.id','ASC']);
         
         <div class='confirmation margin-top120'> </div>
         <div class="container">
-<!--            <h2><?php //echo !isset($_GET['user']) ? 'All users' :($_GET()'Top Sellers';?></h2>-->
+            <h2><?php echo ! isset($_GET['user']) ? 'All users' 
+            : ($_GET['user']==='s' ? 'Sellers' : 'Buyers') ;?></h2>
             <?php if ($db->num_rows_result > 0) { ?>
                 <div class="panel-group" id="accordion">
                     <?php while ($seller = $db->fetch()) {  ?>

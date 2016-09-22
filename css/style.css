@@ -112,7 +112,7 @@ label {
 }
 
 #status_tab {
-      width: 182px;
+      width: 236px;
       margin-top: 12px;
 }
 
@@ -133,4 +133,68 @@ table {
 #saved {
     text-align: center;
     font-weight: bold;
+}
+
+.panel-images {
+    height:150px;
+    width:150px;
+}
+
+#billing_bill {
+    height: auto;
+    background-color: #fed136;
+    text-align: center;
+}
+
+#amount_to_pay {
+    margin: 36px 0px 53px 0px;
+}
+
+#bill {
+    font-weight: bold;
+}
+
+#items_in_cart {
+    color: maroon;
+    font-size: xx-small;
+}
+
+#processing img {
+    width: 100px;
+    position: fixed;
+    top: 330px;
+    left: 690px;
+}
+
+.recent-tweets {
+    font-size: x-large;
+}
+
+.tweet-retweet, .tweet-date, .tweet-fav {
+    margin-left: 10px;
+    color: grey;
+}
+
+.tweet-icon {
+    margin-left: 50px;
+}
+
+.tweet-text {
+    color: #31708f;
+    margin-top: 20px;
+    font-weight: lighter;
+}
+
+#twitter_img {
+    width: 40px;
+    height: 40px;
+}
+
+#twitter_check {
+    margin-top: 30px;
+}
+
+#at {
+    width: 10px;
+    font-size: 20px;
 }

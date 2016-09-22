@@ -40,7 +40,7 @@
     </div>
     <!-- /.container-fluid -->
        
-    <div class="container nav-name"><?php echo 'Welcome, '.$_SESSION['name'].' <' .$_SESSION['role'] . '>';?></div>
+    <div class="container nav-name"><?php echo 'Welcome, '.$_SESSION['name'].' (' .$_SESSION['role_name'] . ')';?></div>
 </nav>
 
 

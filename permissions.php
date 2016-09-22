@@ -29,9 +29,7 @@ require_once 'templates/header.php';
         
         <section>
             <div class="container">
-                <h3>Permissions</h3>
-           
-            
+                <h3>Permissions</h3>            
             <ul class="nav nav-tabs" id="role_tab"></ul>
 
             <div class="form-group" id="permissions_div"></div>

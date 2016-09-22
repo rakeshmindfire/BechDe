@@ -23,8 +23,9 @@ if (isset($_GET['update_id']) ) {
     $res_user_id = $db->fetch();
 
     // Logging out User if try to update any other user product
-    if ($res_user_id['user_id'] !== $_SESSION['id']) {
+    if ( $_SESSION['role'] !== '1' && $res_user_id['user_id'] !== $_SESSION['id']) {
         header('Location: logout.php');
+        error_log_file('Unauthorized access');
     }
  
     // Set the flag to show data is being updated
@@ -34,6 +35,7 @@ if (isset($_GET['update_id']) ) {
     $db->select('products_list', ['category', 'name', 'amount', 'description', 'image'], 
         ['id' => $_GET['update_id']]);
     $row_to_update = $db->fetch();
+
 } 
 
 if ( ! empty($_POST)) {
