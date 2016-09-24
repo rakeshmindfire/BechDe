@@ -71,13 +71,14 @@ $profile = $db->fetch();
                             <div>
                                 <b>Email : </b><?php echo $profile['email']; ?>
                             </div>
+                            <div>
+                                <b>Twitter username: </b><?php echo $profile['twitter_username']; ?>
+                            </div>
                         </div>
                     </div>
-
-                </div>
-                 
+                </div>                
             </div>
-            <a type="button" class="btn btn-lg btn-success col-sm-offset-3 " href="sign_up.php?user=<?php echo $_SESSION['email']?>">Edit Profile</a>  
+            <a type="button" class="btn btn-lg btn-success col-sm-offset-3 " href="sign_up.php?user=<?php echo $_SESSION['id']?>">Edit Profile</a>  
         </div>
 <?php require_once 'templates/footer.php'; ?>
     </body>

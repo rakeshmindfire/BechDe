@@ -277,7 +277,7 @@ function show_user_profile (arg) {
             user_id = arg.data.get_buyer;
             $('#user_type').text('Buyer');
         }
-         
+        
         $.ajax({
             url: 'search.php',
             type: 'post',
@@ -300,6 +300,7 @@ function show_user_profile (arg) {
                 $('#seller_prefcomm').text(seller_data.preferred_comm);
                 $('#seller_addr').text(seller_address.indexOf('null')>=0 ? 'N/A': seller_address);
                 $('#seller_email').text(seller_data.email);
+                $('#seller_email').text(seller_data.twitter_username);
                 $('#seller_info_modal').modal('show');    
             }
         });    
@@ -364,11 +365,6 @@ function product_list_bind() {
                 fetch_products(obj);
             }); 
 
-        var cur_page = window.location.href;
-        $(':reset').on('click',function() {
-             window.location = cur_page;
-        }); 
-        
         $.ajax({
         url: 'search.php?get_list=1',
         type: 'get',
@@ -546,7 +542,14 @@ function history_bind() {
  * @access public
  * @return void
  */
-function purchase_bind() {        
+function purchase_bind() {      
+        // Disable Twitter checkbox if account not present
+        if( ! is_twitter_exist) {
+            $('#post_tweet').prop('checked',false);
+            $('#twitter_check').css({'pointer-events' : 'none', 'opacity' : 0.5});
+            $('#billing_info').append('<span>Add a valid <a href="sign_up.php?user='+ user_id +'">Twitter ID</a> to post tweets</span>');            
+        }
+    
         // If no items in cart
         if(cart.count_items() === 0) {
             var no_items_msg = '<h3>No Items in the cart</h3><h4>Click <a href="product_deals.php">here</a> to add products in cart</h4>';
@@ -762,7 +765,11 @@ function show_product_images() {
  * @return void 
  */
 $(document).ready(function() {
-    
+    var cur_page = window.location.href;
+        $(':reset').on('click',function() {
+             window.location = cur_page;
+        });  
+        
     switch(location.pathname.substring(1)) {
         case "product_list.php":       
             product_list_bind();

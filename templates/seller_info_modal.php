@@ -35,6 +35,9 @@
                     <div >
                         <b>Email : </b><span id="seller_email"></span>
                     </div>
+                    <div >
+                        <b>Twitter : </b><span id="seller_twitter"></span>
+                    </div>
                 </div>
             </div>
         </div>

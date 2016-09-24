@@ -5,6 +5,12 @@ require_once 'libraries/db.php';
 require_once 'libraries/session.php';
 
 $session = new Session; 
+// Redirect to referrer page when session is already set 
+if ( $session->validate_session()) {
+    header('Location: home.php');
+    exit;
+}
+
 $db = new dbOperation;
 
 if ( ! empty($_POST)) {
@@ -40,7 +46,6 @@ if ( ! empty($_POST)) {
                 $session->init('role', $db_result['role']);
                 $session->init('name', $db_result['first_name'].' '.$db_result['middle_name'].' '.$db_result['last_name']);
                 header('Location: home.php');
-           
             } else {
               $error['password'] = 'Wrong password';  
             }

@@ -8,10 +8,19 @@ require_once 'libraries/session.php';
 
 $session = new Session;
 
-//// If session not set redirect to index.php
-//if ( isset($_GET['user']) && ! $session->is_user_authorized(TRUE, 'profile', 'edit')) {
-//    error_log_file('Unauthorized access. User not allowed', FALSE);
-//}
+// If session set redirect to update profile page
+if ( ! isset($_GET['user']) && $session->validate_session()) {
+    header('Location: sign_up.php?user=' . $_SESSION['id']);
+    exit;
+}
+
+$role_str = $_SESSION['role'] === '2' ? 'seller' : 'buyer';
+
+// If session not set redirect to index.php
+if ( isset($_GET['user']) && ! $session->is_user_authorized(TRUE, $role_str.' profile', 'edit')) {
+    error_log_file('Unauthorized access. User not allowed', FALSE);
+    unset($_GET['user']);
+}
 
 $is_update = FALSE;
 $db = new dbOperation;
@@ -19,12 +28,12 @@ $db = new dbOperation;
 // Get User details  
 if (isset($_GET['user']) ) {
     
-    // Check if product belongs to that user
-    $db->select('login', ['user_id'], ['email'=>$_GET['user']]);
-    $res_user_id = $db->fetch();
+    // Check if profile belongs to that user
+    $db->select('login', ['email'], ['user_id'=>$_GET['user']]);
+    $res_user_email = $db->fetch();
 
     // Logging out User if try to update any other user product
-    if ( $_SESSION['role'] !== '1' && $res_user_id['user_id'] !== $_SESSION['id']) {
+    if ( $_SESSION['role'] !== '1' && $res_user_email['email'] !== $_SESSION['email']) {
         header('Location: logout.php');
         error_log_file('Unauthorized access');
     }
@@ -33,7 +42,7 @@ if (isset($_GET['user']) ) {
     $is_update = TRUE;
     
     // Fetch all data of the product being updated
-    $db->get_all_users(['l.email' => $_GET['user']] );
+    $db->get_all_users(['u.id' => $_GET['user']] );
     $row_to_update = $db->fetch(); 
 } 
 
@@ -43,7 +52,7 @@ $db->select('state_table');
 while ($state_row = $db->fetch()) {
     $state_list[] = $state_row;
 }
-var_dump($is_update);
+
 if ( ! empty($_POST)) {
     $pic_name = 'profile_pic';
 
@@ -85,7 +94,6 @@ if ( ! empty($_POST)) {
 
             $data_login = ['email'=> $_POST['email'],'password'=> md5($_POST['password']), 'user_id'=> $user_id];
             $db->insert_or_update(1, 'login', $data_login);
-            
         } else {
             unset($data['user_name']);
             unset($data['type']);
@@ -120,7 +128,6 @@ if ( ! empty($_POST)) {
             }
         }
 
-        /////////////////////////////
         // Delete the previous image if a new file is uploaded
         if ($is_update && $_FILES[$pic_name]['size'] !== 0) {
             $db->select('users', ['image'], ['id'=>$_SESSION['id']]);
@@ -253,6 +260,7 @@ if ( ! empty($_POST)) {
                             <?php echo isset($error['email']) ? $error['email'] : ''; ?> 
                         </div>
                     </div>
+                    <?php if ( ! $is_update) { ?>
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="pwd">Password 
                             <?php echo ! $is_update ? '<span class="color-remove">*</span>' : '';?>
@@ -260,9 +268,7 @@ if ( ! empty($_POST)) {
                         <div class="col-sm-3">
                             <input type="password" class="form-control" id="pwd" placeholder="password"
                                    name="password" value="<?php 
-                                   echo $is_update ? 'ppppppp' :
-                                           (isset($_POST['password']) ? $_POST['password'] : ''); ?>"
-                                           <?php echo $is_update ? 'disabled':'';?>>
+                                   echo isset($_POST['password']) ? $_POST['password'] : ''; ?>">
                         </div>
                         <div class="col-sm-4 error-msg">
                             <?php echo isset($error['password']) ? $error['password'] : ''; ?> 
@@ -276,14 +282,13 @@ if ( ! empty($_POST)) {
                         <div class="col-sm-3">
                             <input type="password" class="form-control" id="confirm_password" 
                                    placeholder="Confirm password" name="confirm_password"
-                                   value="<?php echo $is_update ? 'ppppppp' :
-                                       (isset($_POST['confirm_password']) ? $_POST['confirm_password'] : ''); ?>"
-                                       <?php echo $is_update ? 'disabled':'';?>>
+                                   value="<?php isset($_POST['confirm_password']) ? $_POST['confirm_password'] : ''; ?>">         
                         </div>
                         <div class="col-sm-4 error-msg">
                             <?php echo isset($error['confirm_password']) ? $error['confirm_password'] : ''; ?>
                         </div>
                     </div>
+                    <?php }?>
                     <div class="form-group">
                         <label class="control-label col-sm-2" for="contact_num">Contact Number 
                             <?php echo ! $is_update ? '<span class="color-remove">*</span>' : '';?>
@@ -505,11 +510,12 @@ if ( ! empty($_POST)) {
 
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-1">
-                            <button type="submit" class="btn btn-default btn-lg btn-success">Submit</button>
+                            <button type="submit" class="btn btn-default btn-lg btn-success"><?php echo $is_update ? 'Update': 'Submit';?></button>
                         </div>
                      
                         <div class="col-sm-offset-1 col-sm-1">
-                            <button type="reset" class="btn btn-default btn-lg btn-danger">Reset</button>
+                            <button class="btn btn-default btn-lg btn-danger" <?php echo ! $is_update ? 'type="reset">Reset'
+                                : 'onclick="window.location=\"my_profile.php\"">Cancel';?></button>
                         </div>
                     </div>
                 </form>
@@ -518,8 +524,7 @@ if ( ! empty($_POST)) {
 
         <?php require_once 'templates/footer.php'; ?>
     </body>
-    <script>
-    
+    <script> 
     </script>
 
 </html>

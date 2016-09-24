@@ -146,7 +146,6 @@ class dbOperation {
                      . ' JOIN resource re ON rrp.resource = re.id'
                      . ' JOIN permission p ON rrp.permission = p.id'
                      . ' WHERE rrp.role=' . $role . ' AND re.name="' . $resource .'" AND p.name="' . $permission .'"';
-
         $this->query_result = mysqli_query($this->conn, $this->query);
         $this->validate_result('permissions_exist');
         $this->num_rows_result = mysqli_num_rows($this->query_result);         

@@ -2,6 +2,7 @@
 // Include the constant files
 require_once 'libraries/db.php';
 require_once 'libraries/session.php';
+require_once 'libraries/twitter.php';
 
 $session = new Session;
 
@@ -27,15 +28,15 @@ if ( ! $session->is_user_authorized(TRUE, 'deals', 'view')) {
         <div class="container">
         <div class="container" id="items_to_be_purchased">
         <div id="billing_info" class="container col-md-offset-1 col-sm-2 pull-right">
-            <div id="billing_bill">
-            <h4>BILLING INFO </h4>
+            <div id="billing_bill" class="well">
+            <h5>BILLING INFO </h5>
             <div id="amount_to_pay">
             Amount to pay : <span id="bill"></span><br>
             </div>
             <button id="confirm_purchase_button" type="button" class="btn-sm btn-success">Confirm purchase</button> 
             </div>
             <div id="twitter_check">
-                <img src="img/twitter.png" id="twitter_img">Tweet about this<input type="checkbox" checked="true" id="post_tweet">
+                <img src="img/twitter.png" id="twitter_img">Tweet about this<input type="checkbox" checked="checked" id="post_tweet">
             </div>
         </div>
         </div>
@@ -59,14 +60,16 @@ if ( ! $session->is_user_authorized(TRUE, 'deals', 'view')) {
                   </div>
                 </div>
               </div>
-           </div>
+        </div>
         
         <div id="processing" class="hide">
             <img src="img/ajax-loader.gif">
         </div>
-       
+       <?php echo get_tweet_id();?>
         <script type="text/javascript">
             var no_image = "<?php echo NOIMAGE; ?>";
+            var is_twitter_exist = <?php echo get_tweet_id() ? 'true': 'false';?> ;
+            var user_id = <?php echo $_SESSION['id'];?> ;
         </script>
 
         <?php require_once 'templates/footer.php'; ?>

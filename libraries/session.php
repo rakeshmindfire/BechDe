@@ -40,7 +40,7 @@ class Session {
      * @access public
      * @return boolean
      */
-    public function validate_session() {
+    public function validate_session() { 
         return ( ! empty($_SESSION['id']));
     }
     
@@ -60,7 +60,6 @@ class Session {
             // Allow access if admin or if not specified
             if ($_SESSION['role'] === '1' || (empty($resource) && empty($perm) && $is_user_only)) {
                 $access = TRUE;
-           
             // Check if the user has permission
             } else {
                 $db = new dbOperation();

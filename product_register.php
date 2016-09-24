@@ -11,7 +11,19 @@ $action = isset($_GET['update_id']) ? 'edit' : 'add';
 
 // If session not set redirect to index.php
 if ( ! $session->is_user_authorized(TRUE, 'products', $action)) {
-    error_log_file('Unauthorized access. Session not set in product register page');
+    error_log_file('Unauthorized access. Session not set in product register page', false); echo 'asdasd';
+    ?>
+<script type="text/javascript">
+    (function (msg) {
+        alert('hi' + msg);
+        window.location.href = '<?php echo BASE_PATH; ?>';
+    })('rakesh')
+
+
+    
+</script>
+
+<?php
 }
 
 $is_update = FALSE;
@@ -221,7 +233,7 @@ if ( ! empty($_POST)) {
                       <?php echo $is_update?'Update': 'Add'; ?></button>
               </div>
               <div class="col-sm-offset-1 col-sm-1">
-                  <button type="reset" class="btn btn-default btn-lg btn-danger">Clear</button>
+                  <button type="reset" class="btn btn-default btn-lg btn-danger" onClick="window.location.reload();">Clear</button>
               </div>
             </div>
           </form>

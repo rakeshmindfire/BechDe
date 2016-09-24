@@ -99,7 +99,8 @@ function validate_data($data) {
                 $type = 'any';
                 break;
             
-            default : 
+            default :
+                $null_allowed = TRUE;
                 break;
         }
         

@@ -40,14 +40,30 @@ $_SESSION['role_name'] = $role_name['name'];
             </div>
         </header>
         <section id="tweet_section" class="margin-top120">
+            <?php  
+            $show_tweets = FALSE;
+            
+            if( get_tweet_id()) {
+                $tweets = json_decode(get_tweets());
+                
+                if( empty($tweets)) {
+                    $GLOBALS['twitter_err'] = 3;
+                } else {
+                    $show_tweets = TRUE;
+                };
+            };
+               ?>        
+
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <h2 class="section-heading">MY RECENT TWEETS</h2>
                 </div>
             </div>
-            <div class="container well" id = "recent_tweet_space">       <?php 
-                $tweets = json_decode(get_tweets());
-                
+            <?php
+                if ($show_tweets) { 
+            ?>
+            <div class="container well" id = "recent_tweet_space">       
+                <?php               
                 foreach ($tweets as $t) {
                 ?> 
                 <div class = "recent-tweets">
@@ -58,44 +74,17 @@ $_SESSION['role_name'] = $role_name['name'];
                 </div>
                     <hr>
                 
-          <?php }?>
+            <?php } ?>
             </div>
-        </section>
-        <section id="services" class="margin-top120">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <h2 class="section-heading">Services</h2>
-                    </div>
-                </div>
-                <div class="row text-center">
-                    <div class="col-md-4">
-                        <span class="fa-stack fa-4x">
-                            <i class="fa fa-circle fa-stack-2x text-primary"></i>
-                            <i class="fa fa-shopping-cart fa-stack-1x fa-inverse"></i>
-                        </span>
-                        <h4 class="service-heading">Service1</h4>
-                        <p class="text-muted">Detail of Service</p>
-                    </div>
-                    <div class="col-md-4">
-                        <span class="fa-stack fa-4x">
-                            <i class="fa fa-circle fa-stack-2x text-primary"></i>
-                            <i class="fa fa-laptop fa-stack-1x fa-inverse"></i>
-                        </span>
-                        <h4 class="service-heading">Service2</h4>
-                        <p class="text-muted">Detail of Service</p>
-                    </div>
-                    <div class="col-md-4">
-                        <span class="fa-stack fa-4x">
-                            <i class="fa fa-circle fa-stack-2x text-primary"></i>
-                            <i class="fa fa-lock fa-stack-1x fa-inverse"></i>
-                        </span>
-                        <h4 class="service-heading">Service3</h4>
-                        <p class="text-muted">Detail of Service</p>
-                    </div>
-                </div>
+            
+            <?php } else {?>
+            <div class="container well text-center" id="twitter_not_set">  
+                <h4><?php echo show_twitter_err();?></h4>
             </div>
+            <?php } ?>
+            
         </section>
+        
         <script type="text/javascript">
            document.cookie = 'username = <?php echo $_SESSION['email']; ?>';
         </script>

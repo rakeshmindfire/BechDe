@@ -1,3 +1,14 @@
+<?php
+// Include the constant files
+require_once 'libraries/session.php';
+
+$session = new Session;
+
+if ( $session->validate_session()) {
+    header('Location: home.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
