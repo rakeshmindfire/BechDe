@@ -66,10 +66,13 @@ function show_modal(del_id) {
             url: 'search.php',
             type: 'post',
             data: { delete_id:del_id },
-            success: function() {
-                search_button.click(); 
-                $('#confirm_message').text('Product deleted successfully!');
-                $('#myModalDelete').modal('hide');
+            success: function(res) {
+                search_button.click();
+                
+                if (res.status) {
+                    $('#confirm_message').text('Product deleted successfully!');
+                    $('#myModalDelete').modal('hide');
+            }
             }
         });
     });  

@@ -276,7 +276,7 @@ class dbOperation {
      * @return void 
      */
     public function log_db_error($type) {
-        error_log_file('db error '.$type);
+        error_log_file('db error '.$type, 'error.php');
     }
 }
 

@@ -34,7 +34,8 @@ function send_receipt($receipt_id) {
 
 // If session not set redirect to index.php
 if ( ! $session->is_user_authorized(TRUE, 'products', $action)) {
-    error_log_file('Unauthorized access.');
+    error_log_file('Unauthorized access.', TRUE, 'You dont access to ' . $action . '. Contact Admin');
+    exit;
 }
 
 $is_admin_or_buyer = ($_SESSION['role'] === '1' || $_SESSION['role'] === '3');
@@ -71,7 +72,7 @@ if (isset($_GET['get_list']) && $_GET['get_list'] === '1') {
         unset ($_POST['delete_id']);
         $status = TRUE;
     }
- 
+    
     unset($_POST['delete_id']);
     echo json_encode(['status' => $status]);
 } else if (isset($_POST['change_id'])) {

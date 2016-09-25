@@ -16,9 +16,9 @@ if ( ! isset($_GET['user']) && $session->validate_session()) {
 
 $role_str = $_SESSION['role'] === '2' ? 'seller' : 'buyer';
 
-// If session not set redirect to index.php
+// If session not set 
 if ( isset($_GET['user']) && ! $session->is_user_authorized(TRUE, $role_str.' profile', 'edit')) {
-    error_log_file('Unauthorized access. User not allowed', FALSE);
+    error_log_file('Unauthorized access. User not allowed', TRUE, 'You do not have permissions to Edit Profile. Contact Admin');
     unset($_GET['user']);
 }
 

@@ -7,7 +7,7 @@ require_once 'libraries/session.php';
 $session = new Session; 
 // Redirect to referrer page when session is already set 
 if ( $session->validate_session()) {
-    header('Location: home.php');
+    error_log_file('Sesson already set. No need for login', TRUE);
     exit;
 }
 

@@ -11,19 +11,7 @@ $action = isset($_GET['update_id']) ? 'edit' : 'add';
 
 // If session not set redirect to index.php
 if ( ! $session->is_user_authorized(TRUE, 'products', $action)) {
-    error_log_file('Unauthorized access. Session not set in product register page', false); echo 'asdasd';
-    ?>
-<script type="text/javascript">
-    (function (msg) {
-        alert('hi' + msg);
-        window.location.href = '<?php echo BASE_PATH; ?>';
-    })('rakesh')
-
-
-    
-</script>
-
-<?php
+    error_log_file('Unauthorized access.', TRUE, 'You do not have permissions. Contact Admin');
 }
 
 $is_update = FALSE;
@@ -239,7 +227,8 @@ if ( ! empty($_POST)) {
           </form>
         </div>
         </section>         
-         <?php require_once 'templates/footer.php';?>
+         <?php require_once 'templates/footer.php'; require_once 'helper/alert_msg.php';?>
+       
     </body>
 
 </html>

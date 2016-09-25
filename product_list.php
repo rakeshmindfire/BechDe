@@ -7,7 +7,7 @@ $session = new Session;
 
 // If session not set redirect to index.php
 if ( ! $session->is_user_authorized(TRUE, 'products', 'view')) {
-    error_log_file('Unauthorized access. Session not set');
+    error_log_file('Unauthorized access. Session not set', TRUE);
 }
 
 ?>
@@ -39,7 +39,7 @@ if (isset($_GET['success'])) {
             break;
         
         default:
-            error_log_file('Wrong URL');
+            error_log_file('Wrong URL', TRUE);
             break;
     }
 }
